@@ -313,9 +313,8 @@
             display: block;
         }
 
-        /* نافذة شاشة قفل الترخيص (License Lock Screen) */
         #licenseModal {
-            display: flex; /* تفتح تلقائياً عند عدم وجود ترخيص */
+            display: flex;
             background: rgba(7, 69, 23, 0.95);
             z-index: 9999;
         }
@@ -355,13 +354,12 @@
 </head>
 <body>
 
-<!-- شاشة حماية الترخيص التلقائية عند أول فتح للتطبيق -->
 <div id="licenseModal" class="modal">
     <div class="license-box">
         <h2>🔒 تفعيل النسخة المدفوعة</h2>
         <p>هذا التطبيق مرخص لجهاز واحد فقط. يرجى إرسال معرف جهازك (Device ID) عبر واتساب للحصول على مفتاح التفعيل الخاص بك:</p>
         
-        <div class="device-id-badge" id="displayDeviceId">جاري توليد البصمة...</div>
+        <div class="device-id-badge" id="displayDeviceId">...</div>
         
         <div style="margin-bottom: 15px;">
             <input type="text" id="licenseKeyInput" placeholder="أدخل مفتاح التفعيل هنا (License Key)..." style="width: 100%; text-align: center; padding: 12px; font-weight: bold; letter-spacing: 1px;">
@@ -566,12 +564,10 @@
 </div>
 
 <script>
-    /* نظام توليد بصمة الجهاز الفريدة (Device Fingerprinting) */
     function getOrCreateDeviceId() {
         let deviceId = localStorage.getItem('forever_device_id');
         if (!deviceId) {
-            // توليد بصمة فريدة تعتمد على المتصفح وتاريخ عشوائي ورقم عشوائي
-            let randomPart = Math.random().toString(36.substring(2, 9));
+            let randomPart = Math.random().toString(36).substring(2, 9);
             let timePart = Date.now().toString(36);
             deviceId = "FRV-" + (randomPart + timePart).toUpperCase();
             localStorage.setItem('forever_device_id', deviceId);
@@ -583,7 +579,6 @@
     document.getElementById('displayDeviceId').innerText = myDeviceId;
     document.getElementById('waSupportBtn').href = "https://wa.me/?text=" + encodeURIComponent("مرحباً، أود تفعيل تطبيق فوريفر CRM. معرف جهازي هو: " + myDeviceId);
 
-    /* معادلة توليد مفتاح التفعيل بناءً على الـ Device ID الخاص بك */
     function generateValidLicenseKey(devId) {
         let cleaned = devId.replace(/[^A-Z0-9]/g, '');
         let hash = 0;
@@ -636,7 +631,7 @@
         select.innerHTML = html;
     }
 
-    let data = JSON.parse(localStorage.getItem('forever_crm_data_v6')) || {
+    let data = JSON.parse(localStorage.getItem('forever_crm_data_v8') || '{}') || {
         prospects: [],
         team: [],
         customers: [],
@@ -647,6 +642,7 @@
         }
     };
 
+    if(!data.settings) data.settings = { currency: 'درهم', lang: 'ar', customStatuses: ['جديد', 'تم التواصل', 'تم اللقاء', 'مدعو للمقر'] };
     if(!data.settings.currency) data.settings.currency = 'درهم';
     populateCurrencies(data.settings.currency);
 
@@ -700,117 +696,17 @@
             modalPurchaseTitle: "إضافة مشتريات جديدة للزبون",
             savePurchaseBtn: "إضافة المشتريات",
             otherStatus: "أخرى..."
-        },
-        fr: {
-            appTitle: "Système de Gestion d'Équipe Forever (CRM)",
-            subTitle: "Organisez votre temps, suivez vos prospects et développez votre équipe",
-            settingsBtn: "⚙️ Paramètres",
-            tab1: "1. Prospects",
-            tab2: "2. Équipe & Formations",
-            tab3: "3. Clients & Achats",
-            pSectionTitle: "Ajouter un nouveau prospect",
-            pNamePh: "Nom complet",
-            pPhonePh: "Numéro de téléphone",
-            pAddBtn: "Ajouter",
-            pListTitle: "Liste d'attente et Suivi",
-            searchProspectsPh: "🔍 Rechercher par nom ou téléphone...",
-            tSectionTitle: "Ajouter un nouveau distributeur",
-            tNamePh: "Nom du distributeur",
-            tPhonePh: "Téléphone",
-            tAddBtn: "Ajouter",
-            tListTitle: "Équipe et Formations",
-            searchTeamPh: "🔍 Rechercher par nom ou téléphone...",
-            cSectionTitle: "Ajouter un nouveau client",
-            cNamePh: "Nom du client",
-            cPhonePh: "Numéro de téléphone",
-            cProdPh: "Nom du produit",
-            cPricePh: "Prix",
-            cAddBtn: "Enregistrer",
-            searchCustomersPh: "🔍 Rechercher par nom ou téléphone...",
-            cListTitle: "Registre des clients (Cliquez sur un client pour ajouter des achats)",
-            whatsapp: "WhatsApp",
-            call: "Appeler",
-            delete: "Supprimer",
-            convertTeam: "Convertir en Distributeur",
-            convertCust: "Convertir en Client",
-            editNotes: "Modifier & Rang",
-            activeBtn: "⭐ Actif",
-            t1: "Formation Initiale",
-            t2: "Formation Produits",
-            t3: "Formation Parrainage",
-            settingsTitle: "Paramètres de l'application",
-            langLabel: "Langue de l'application",
-            currLabel: "Devise",
-            exportLabel: "Exportation & Importation",
-            exportBtn: "Exporter (Backup)",
-            importLabel: "Importer (Restore)",
-            saveSettingsBtn: "Enregistrer",
-            modalMemberTitle: "Modifier le distributeur, rang et notes",
-            saveMemberBtn: "Enregistrer",
-            modalPurchaseTitle: "Ajouter un nouvel achat",
-            savePurchaseBtn: "Ajouter",
-            otherStatus: "Autre..."
-        },
-        en: {
-            appTitle: "Forever Team Management (Smart CRM)",
-            subTitle: "Organize your time, track prospects, and grow your team smartly",
-            settingsBtn: "⚙️ App Settings",
-            tab1: "1. Prospects",
-            tab2: "2. Team & Trainings",
-            tab3: "3. Customers & Purchases",
-            pSectionTitle: "Add New Prospect",
-            pNamePh: "Person Name",
-            pPhonePh: "Phone Number",
-            pAddBtn: "Add to List",
-            pListTitle: "Queue & Follow-up",
-            searchProspectsPh: "🔍 Search by name or phone...",
-            tSectionTitle: "Add New Team Member",
-            tNamePh: "Member Name",
-            tPhonePh: "Phone Number",
-            tAddBtn: "Add Member",
-            tListTitle: "Team Members & Trainings",
-            searchTeamPh: "🔍 Search by name or phone...",
-            cSectionTitle: "Add New Customer",
-            cNamePh: "Customer Name",
-            cPhonePh: "Phone Number",
-            cProdPh: "Product Name",
-            cPricePh: "Price",
-            cAddBtn: "Save Customer",
-            searchCustomersPh: "🔍 Search by name or phone...",
-            cListTitle: "Customer Records (Click customer to add purchases)",
-            whatsapp: "WhatsApp",
-            call: "Call",
-            delete: "Delete",
-            convertTeam: "Convert to Team",
-            convertCust: "Convert to Customer",
-            editNotes: "Edit & Rank",
-            activeBtn: "⭐ Active",
-            t1: "Starter Training",
-            t2: "Products Training",
-            t3: "Sponsoring Training",
-            settingsTitle: "App Settings",
-            langLabel: "App Language",
-            currLabel: "Currency",
-            exportLabel: "Export & Import Data",
-            exportBtn: "Export (Backup)",
-            importLabel: "Import (Restore)",
-            saveSettingsBtn: "Save Settings",
-            modalMemberTitle: "Edit Team Member, Rank & Notes",
-            saveMemberBtn: "Save Changes",
-            modalPurchaseTitle: "Add New Purchase",
-            savePurchaseBtn: "Add Purchase",
-            otherStatus: "Other..."
         }
     };
 
     function t(key) {
         let lang = data.settings.lang || 'ar';
-        return translations[lang][key] || translations['ar'][key] || key;
+        return translations[lang] && translations[lang][key] ? translations[lang][key] : translations['ar'][key];
     }
 
     function applyTranslations() {
         document.getElementById('htmlRoot').setAttribute('dir', data.settings.lang === 'ar' ? 'rtl' : 'ltr');
-        document.getElementById('htmlRoot').setAttribute('lang', data.settings.lang);
+        document.getElementById('htmlRoot').setAttribute('lang', data.settings.lang || 'ar');
         document.getElementById('appTitle').innerText = t('appTitle');
         document.getElementById('mainTitle').innerText = t('appTitle');
         document.getElementById('subTitle').innerText = t('subTitle');
@@ -873,7 +769,7 @@
     }
 
     function saveData() {
-        localStorage.setItem('forever_crm_data_v6', JSON.stringify(data));
+        localStorage.setItem('forever_crm_data_v8', JSON.stringify(data));
         renderAll();
     }
 
@@ -927,17 +823,6 @@
     }
 
     function updateProspectStatus(id, newStatus) {
-        if(newStatus === 'أخرى') {
-            let customVal = prompt('أدخل الحالة الجديدة المخصصة:');
-            if(customVal && customVal.trim() !== '') {
-                newStatus = customVal.trim();
-                if(!data.settings.customStatuses.includes(newStatus)) {
-                    data.settings.customStatuses.push(newStatus);
-                }
-            } else {
-                return;
-            }
-        }
         let p = data.prospects.find(x => x.id === id);
         if(p) {
             p.status = newStatus;
