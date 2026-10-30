@@ -589,29 +589,62 @@
         return "KEY-" + Math.abs(hash).toString(36).toUpperCase() + "-FORIVER";
     }
 
+    function generateDemoLicenseKey(devId, hoursValid = 24) {
+        let expiryTime = Date.now() + (hoursValid * 60 * 60 * 1000);
+        let rawString = devId + "-" + expiryTime;
+        let hash = 0;
+        for (let i = 0; i < rawString.length; i++) {
+            hash = ((hash << 5) - hash) + rawString.charCodeAt(i);
+            hash |= 0;
+        }
+        return "DEMO-" + expiryTime + "-" + Math.abs(hash).toString(36).toUpperCase();
+    }
+
     function checkLicenseStatus() {
         let savedKey = localStorage.getItem('forever_license_key');
         let expectedKey = generateValidLicenseKey(myDeviceId);
 
         if (savedKey === expectedKey) {
             document.getElementById('licenseModal').style.display = 'none';
-        } else {
-            document.getElementById('licenseModal').style.display = 'flex';
+            return;
         }
+
+        if (savedKey && savedKey.startsWith('DEMO-')) {
+            let parts = savedKey.split('-');
+            let expiryTime = Number(parts[1]);
+            
+            if (Date.now() < expiryTime) {
+                document.getElementById('licenseModal').style.display = 'none';
+                return;
+            } else {
+                localStorage.removeItem('forever_license_key');
+                alert('انتهت مدة التجربة المجانية لتطبيقك. يرجى اقتناء النسخة الكاملة للاستمرار.');
+            }
+        }
+
+        document.getElementById('licenseModal').style.display = 'flex';
     }
 
     function verifyAndActivateLicense() {
         let userInput = document.getElementById('licenseKeyInput').value.trim();
         let expectedKey = generateValidLicenseKey(myDeviceId);
 
-        if (userInput === expectedKey) {
+        if (userInput === expectedKey || (userInput.startsWith('DEMO-') && isValidDemoKey(userInput))) {
             localStorage.setItem('forever_license_key', userInput);
-            alert('تم تفعيل التطبيق بنجاح للأبد! شكراً لثقتك.');
+            alert('تم تفعيل التطبيق بنجاح! شكراً لثقتك.');
             document.getElementById('licenseModal').style.display = 'none';
             renderAll();
         } else {
-            alert('مفتاح التفعيل غير صحيح لهذا الجهاز. تأكد من إرسال معرف الجهاز الصحيح للمطور.');
+            alert('مفتاح التفعيل غير صحيح أو منتهي الصلاحية لهذا الجهاز.');
         }
+    }
+
+    function isValidDemoKey(demoKey) {
+        let parts = demoKey.split('-');
+        if(parts.length < 3) return false;
+        let expiryTime = Number(parts[1]);
+        if(Date.now() >= expiryTime) return false;
+        return true;
     }
 
     const worldCurrencies = [
@@ -631,7 +664,7 @@
         select.innerHTML = html;
     }
 
-    let data = JSON.parse(localStorage.getItem('forever_crm_data_v8') || '{}') || {
+    let data = JSON.parse(localStorage.getItem('forever_crm_data_v10') || '{}') || {
         prospects: [],
         team: [],
         customers: [],
@@ -756,6 +789,7 @@
 
     function updateStatusDropdownOptions() {
         let select = document.getElementById('pStatus');
+        if (!select) return;
         let currentVal = select.value;
         let statuses = data.settings.customStatuses || ['جديد', 'تم التواصل', 'تم اللقاء', 'مدعو للمقر'];
         
@@ -769,7 +803,7 @@
     }
 
     function saveData() {
-        localStorage.setItem('forever_crm_data_v8', JSON.stringify(data));
+        localStorage.setItem('forever_crm_data_v10', JSON.stringify(data));
         renderAll();
     }
 
@@ -795,7 +829,7 @@
         const name = document.getElementById('pName').value.trim();
         const phone = document.getElementById('pPhone').value.trim();
         let statusSelect = document.getElementById('pStatus');
-        let status = statusSelect.value;
+        let status = statusSelect ? statusSelect.value : 'جديد';
 
         if(status === 'أخرى') {
             let customInput = document.getElementById('customStatusInput').value.trim();
@@ -816,6 +850,7 @@
             return;
         }
 
+        if(!data.prospects) data.prospects = [];
         data.prospects.push({ id: Date.now(), name, phone, status });
         document.getElementById('pName').value = '';
         document.getElementById('pPhone').value = '';
@@ -838,6 +873,7 @@
     function convertToTeam(id) {
         let p = data.prospects.find(x => x.id === id);
         if(p) {
+            if(!data.team) data.team = [];
             data.team.push({
                 id: Date.now(),
                 name: p.name,
@@ -857,6 +893,7 @@
     function convertToCustomerFromProspect(id) {
         let p = data.prospects.find(x => x.id === id);
         if(p) {
+            if(!data.customers) data.customers = [];
             data.customers.push({
                 id: Date.now(),
                 name: p.name,
@@ -877,6 +914,7 @@
             return;
         }
 
+        if(!data.team) data.team = [];
         data.team.push({
             id: Date.now(),
             name,
@@ -957,6 +995,7 @@
             return;
         }
 
+        if(!data.customers) data.customers = [];
         let existingCustomer = data.customers.find(x => x.phone === phone);
         
         if(existingCustomer) {
@@ -1079,9 +1118,17 @@
     }
 
     function renderAll() {
-        let searchP = document.getElementById('searchProspects').value.toLowerCase();
-        let searchT = document.getElementById('searchTeam').value.toLowerCase();
-        let searchC = document.getElementById('searchCustomers').value.toLowerCase();
+        let searchInputP = document.getElementById('searchProspects');
+        let searchInputT = document.getElementById('searchTeam');
+        let searchInputC = document.getElementById('searchCustomers');
+
+        let searchP = searchInputP ? searchInputP.value.toLowerCase() : '';
+        let searchT = searchInputT ? searchInputT.value.toLowerCase() : '';
+        let searchC = searchInputC ? searchInputC.value.toLowerCase() : '';
+
+        if(!data.prospects) data.prospects = [];
+        if(!data.team) data.team = [];
+        if(!data.customers) data.customers = [];
 
         let pHTML = '';
         let filteredProspects = data.prospects.filter(p => p.name.toLowerCase().includes(searchP) || p.phone.toLowerCase().includes(searchP));
@@ -1117,7 +1164,8 @@
                 </div>
             </div>`;
         });
-        document.getElementById('prospectsListContainer').innerHTML = pHTML || `<p style="text-align:center; color:#777; padding:15px;">لا توجد بيانات حالياً</p>`;
+        let pContainer = document.getElementById('prospectsListContainer');
+        if(pContainer) pContainer.innerHTML = pHTML || `<p style="text-align:center; color:#777; padding:15px;">لا توجد بيانات حالياً</p>`;
 
         let tHTML = '';
         let filteredTeam = data.team.filter(m => m.name.toLowerCase().includes(searchT) || m.phone.toLowerCase().includes(searchT));
@@ -1151,13 +1199,14 @@
                 </div>
             </div>`;
         });
-        document.getElementById('teamListContainer').innerHTML = tHTML || `<p style="text-align:center; color:#777; padding:15px;">لا يوجد أعضاء منضمين حتى الآن</p>`;
+        let tContainer = document.getElementById('teamListContainer');
+        if(tContainer) tContainer.innerHTML = tHTML || `<p style="text-align:center; color:#777; padding:15px;">لا يوجد أعضاء منضمين حتى الآن</p>`;
 
         let cHTML = '';
         let filteredCustomers = data.customers.filter(c => c.name.toLowerCase().includes(searchC) || c.phone.toLowerCase().includes(searchC));
 
         filteredCustomers.forEach(c => {
-            let purchasesHtml = c.purchases.length > 0 ? c.purchases.map(pr => `<li>اشتري: <strong>${pr.product}</strong> - السعر: ${pr.price} (بتاريخ: ${pr.date})</li>`).join('') : '<li>لا توجد مشتريات مسجلة بعد</li>';
+            let purchasesHtml = c.purchases && c.purchases.length > 0 ? c.purchases.map(pr => `<li>اشتري: <strong>${pr.product}</strong> - السعر: ${pr.price} (بتاريخ: ${pr.date})</li>`).join('') : '<li>لا توجد مشتريات مسجلة بعد</li>';
             
             cHTML += `<div class="customer-card">
                 <div class="card-header" style="cursor:pointer;" onclick="openPurchaseModal(${c.id})" title="اضغط لإضافة مشتريات">
@@ -1178,14 +1227,13 @@
                 </ul>
             </div>`;
         });
-        document.getElementById('customersList').innerHTML = cHTML || `<p style="text-align:center; color:#777; padding:15px;">لا توجد سجلات زبناء حالياً</p>`;
+        let cContainer = document.getElementById('customersList');
+        if(cContainer) cContainer.innerHTML = cHTML || `<p style="text-align:center; color:#777; padding:15px;">لا توجد سجلات زبناء حالياً</p>`;
     }
 
     applyTranslations();
     checkLicenseStatus();
-    if(localStorage.getItem('forever_license_key')) {
-        renderAll();
-    }
+    renderAll();
 </script>
 
 </body>
