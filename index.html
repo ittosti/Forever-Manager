@@ -4,6 +4,8 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title id="appTitle">نظام إدارة فريق فوريفر - الأعمال الذكية</title>
+    <link rel="manifest" href="manifest.json">
+    <meta name="theme-color" content="#0b6623">
     <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;700&display=swap" rel="stylesheet">
     <style>
         :root {
@@ -677,6 +679,14 @@
 </div>
 
 <script>
+    if ('serviceWorker' in navigator) {
+        window.addEventListener('load', () => {
+            navigator.serviceWorker.register('sw.js')
+                .then(reg => console.log('ServiceWorker registered!'))
+                .catch(err => console.log('ServiceWorker registration failed: ', err));
+        });
+    }
+
     function getOrCreateDeviceId() {
         let deviceId = localStorage.getItem('forever_device_id');
         if (!deviceId) {
@@ -762,7 +772,6 @@
         return true;
     }
 
-    // إدارة الحسابات المتعددة
     let accounts = JSON.parse(localStorage.getItem('forever_accounts') || '[]');
     let activeAccount = localStorage.getItem('forever_active_account') || '';
 
@@ -845,7 +854,6 @@
         container.innerHTML = html || 'لا توجد حسابات أخرى';
     }
 
-    // بيانات التطبيق لكل مستخدم
     let data = {
         prospects: [],
         team: [],
@@ -1052,7 +1060,6 @@
         }
     }
 
-    // دوال العملاء المحتملين
     function addProspect() {
         const name = document.getElementById('pName').value.trim();
         const phone = document.getElementById('pPhone').value.trim();
@@ -1132,7 +1139,6 @@
         }
     }
 
-    // دوال الموزعين
     function addTeamMemberManual() {
         const name = document.getElementById('tName').value.trim();
         const phone = document.getElementById('tPhone').value.trim();
@@ -1212,7 +1218,6 @@
         }
     }
 
-    // دوال الزبناء
     function addCustomer() {
         const name = document.getElementById('cName').value.trim();
         const phone = document.getElementById('cPhone').value.trim();
@@ -1291,7 +1296,6 @@
         }
     }
 
-    // دوال الأحداث واللقاءات
     function addEvent() {
         const name = document.getElementById('evName').value.trim();
         const date = document.getElementById('evDate').value;
@@ -1371,7 +1375,6 @@
         }
     }
 
-    // دوال مسح جميع بيانات التطبيق برقم سري (بدون عرضه في الرسالة)
     function requestClearAllData() {
         let pin = prompt('الرجاء إدخال الرقم السري لمسح جميع بيانات التطبيق:');
         if(pin === null) return;
@@ -1470,7 +1473,6 @@
         if(!data.events) data.events = [];
         if(!data.archive) data.archive = [];
 
-        // 1. عرض العملاء المحتملين
         let pHTML = '';
         let filteredProspects = data.prospects.filter(p => p.name.toLowerCase().includes(searchP) || p.phone.toLowerCase().includes(searchP));
         filteredProspects.forEach(p => {
@@ -1505,7 +1507,6 @@
         let pContainer = document.getElementById('prospectsListContainer');
         if(pContainer) pContainer.innerHTML = pHTML || `<p style="text-align:center; color:#777; padding:15px;">لا توجد بيانات حالياً</p>`;
 
-        // 2. عرض فريق الموزعين
         let tHTML = '';
         let filteredTeam = data.team.filter(m => m.name.toLowerCase().includes(searchT) || m.phone.toLowerCase().includes(searchT));
         filteredTeam.forEach(m => {
@@ -1540,7 +1541,6 @@
         let tContainer = document.getElementById('teamListContainer');
         if(tContainer) tContainer.innerHTML = tHTML || `<p style="text-align:center; color:#777; padding:15px;">لا يوجد أعضاء منضمين حتى الآن</p>`;
 
-        // 3. عرض الزبناء والمشتريات
         let cHTML = '';
         let filteredCustomers = data.customers.filter(c => c.name.toLowerCase().includes(searchC) || c.phone.toLowerCase().includes(searchC));
         filteredCustomers.forEach(c => {
@@ -1566,7 +1566,6 @@
         let cContainer = document.getElementById('customersList');
         if(cContainer) cContainer.innerHTML = cHTML || `<p style="text-align:center; color:#777; padding:15px;">لا توجد سجلات زبناء حالياً</p>`;
 
-        // 4. عرض الأحداث واللقاءات
         let eHTML = '';
         let filteredEvents = data.events.filter(e => e.name.toLowerCase().includes(searchE) || (e.location && e.location.toLowerCase().includes(searchE)));
         filteredEvents.forEach(ev => {
@@ -1591,8 +1590,7 @@
         let eContainer = document.getElementById('eventsListContainer');
         if(eContainer) eContainer.innerHTML = eHTML || `<p style="text-align:center; color:#777; padding:15px;">لا توجد أحداث أو مواعيد قادمة</p>`;
 
-        // عرض الأرشيف
-        let aHTML = ``;
+        let aHTML = '';
         data.archive.forEach(ar => {
             let locDisplay = ar.location ? ` | المكان: ${ar.location}` : '';
             aHTML += `<div class="event-card" style="background:#f1f5f2; opacity:0.85;">
