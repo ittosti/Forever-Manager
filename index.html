@@ -1,0 +1,1307 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl" id="htmlRoot">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title id="appTitle">نظام إدارة فريق فوريفر - الأعمال الذكية</title>
+    <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;700&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --primary-color: #0b6623;
+            --primary-dark: #074517;
+            --accent-color: #ffc107;
+            --bg-color: #f4f7f5;
+            --card-bg: #ffffff;
+            --text-main: #333333;
+            --text-muted: #777777;
+            --danger: #dc3545;
+            --success: #28a745;
+            --info: #17a2b8;
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+            font-family: 'Cairo', sans-serif;
+        }
+
+        body {
+            background-color: var(--bg-color);
+            color: var(--text-main);
+            padding: 20px;
+            padding-bottom: 90px;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+
+        header {
+            background: linear-gradient(135deg, var(--primary-color), var(--primary-dark));
+            color: white;
+            padding: 20px;
+            border-radius: 12px;
+            text-align: center;
+            margin-top: 0;
+            margin-bottom: 25px;
+            box-shadow: 0 4px 10px rgba(0,0,0,0.1);
+        }
+
+        header h1 {
+            font-size: 24px;
+            margin-bottom: 5px;
+        }
+
+        header p {
+            font-size: 14px;
+            opacity: 0.9;
+        }
+
+        .settings-bottom-floating {
+            position: fixed;
+            bottom: 20px;
+            left: 50%;
+            transform: translateX(-50%);
+            background-color: var(--primary-dark);
+            color: white;
+            border: 2px solid var(--accent-color);
+            padding: 12px 30px;
+            border-radius: 30px;
+            cursor: pointer;
+            font-weight: bold;
+            font-size: 15px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.3);
+            z-index: 999;
+            transition: 0.2s;
+        }
+
+        .settings-bottom-floating:hover {
+            background-color: #053310;
+            transform: translateX(-50%) scale(1.05);
+        }
+
+        .top-nav-bar {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+            flex-wrap: wrap;
+            gap: 15px;
+        }
+
+        .tabs {
+            display: flex;
+            gap: 10px;
+            overflow-x: auto;
+            padding-bottom: 5px;
+            flex: 1;
+        }
+
+        .tab-btn {
+            background-color: #e2e8e4;
+            border: none;
+            padding: 12px 20px;
+            border-radius: 8px;
+            cursor: pointer;
+            font-weight: 600;
+            color: var(--text-main);
+            transition: 0.3s;
+            white-space: nowrap;
+        }
+
+        .tab-btn.active {
+            background-color: var(--primary-color);
+            color: white;
+            box-shadow: 0 2px 6px rgba(11, 102, 35, 0.3);
+        }
+
+        .section-panel {
+            display: none;
+            background: var(--card-bg);
+            padding: 20px;
+            border-radius: 12px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.05);
+        }
+
+        .section-panel.active {
+            display: block;
+        }
+
+        .search-box {
+            margin-bottom: 15px;
+        }
+
+        .search-box input {
+            width: 100%;
+            padding: 10px 15px;
+            border: 1px solid #ccc;
+            border-radius: 8px;
+            font-size: 14px;
+        }
+
+        .form-group {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)) 120px;
+            gap: 10px;
+            margin-bottom: 20px;
+            background: #f9fbf9;
+            padding: 15px;
+            border-radius: 8px;
+            border: 1px solid #e0e8e2;
+        }
+
+        input, select, textarea {
+            padding: 10px;
+            border: 1px solid #ccc;
+            border-radius: 6px;
+            font-size: 14px;
+            outline: none;
+        }
+
+        input:focus, select:focus {
+            border-color: var(--primary-color);
+        }
+
+        button.btn-primary {
+            background-color: var(--primary-color);
+            color: white;
+            border: none;
+            border-radius: 6px;
+            cursor: pointer;
+            font-weight: bold;
+            transition: 0.2s;
+        }
+
+        button.btn-primary:hover {
+            background-color: var(--primary-dark);
+        }
+
+        .prospect-card, .team-card, .customer-card {
+            background: #fafcfb;
+            border: 1px solid #e2e8e2;
+            border-radius: 8px;
+            padding: 15px;
+            margin-bottom: 15px;
+            transition: 0.2s;
+        }
+
+        .team-card.active-member {
+            background-color: #fffde7 !important;
+            border-color: #fbc02d !important;
+        }
+
+        .prospect-card:hover, .team-card:hover, .customer-card:hover {
+            box-shadow: 0 2px 6px rgba(0,0,0,0.05);
+        }
+
+        .card-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            flex-wrap: wrap;
+            gap: 10px;
+            margin-bottom: 10px;
+        }
+
+        .card-actions {
+            display: flex;
+            gap: 6px;
+            flex-wrap: wrap;
+            margin-top: 10px;
+            align-items: center;
+            border-top: 1px solid #eee;
+            padding-top: 10px;
+        }
+
+        .btn-sm {
+            padding: 6px 12px;
+            font-size: 12px;
+            border-radius: 6px;
+            border: none;
+            cursor: pointer;
+            font-weight: 600;
+        }
+
+        .btn-whatsapp { 
+            background: #25d366; 
+            color: black; 
+            text-decoration: none; 
+            display: inline-flex; 
+            align-items: center; 
+            padding: 6px 12px; 
+            border-radius: 6px; 
+            font-size: 12px; 
+            font-weight: 600;
+        }
+
+        .btn-call {
+            background: #17a2b8;
+            color: white;
+            text-decoration: none;
+            display: inline-flex;
+            align-items: center;
+            padding: 6px 12px;
+            border-radius: 6px;
+            font-size: 12px;
+            font-weight: 600;
+        }
+
+        .btn-convert { background: var(--accent-color); color: #000; }
+        .btn-delete { background: var(--danger); color: white; }
+        .btn-edit { background: #6c757d; color: white; }
+        .btn-active-status { background: #fbc02d; color: #000; }
+
+        .purchase-list {
+            margin-top: 8px;
+            padding-right: 20px;
+            font-size: 13px;
+            color: var(--text-muted);
+        }
+
+        .modal {
+            display: none;
+            position: fixed;
+            top: 0; left: 0; width: 100%; height: 100%;
+            background: rgba(0,0,0,0.5);
+            justify-content: center;
+            align-items: center;
+            z-index: 1000;
+            padding: 15px;
+        }
+
+        .modal-content {
+            background: white;
+            padding: 25px;
+            border-radius: 12px;
+            width: 100%;
+            max-width: 500px;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.2);
+            position: relative;
+        }
+
+        .modal-content h3 {
+            margin-bottom: 15px;
+            color: var(--primary-dark);
+        }
+
+        .close-modal {
+            position: absolute;
+            top: 15px;
+            left: 15px;
+            background: none;
+            border: none;
+            font-size: 18px;
+            cursor: pointer;
+            color: var(--text-muted);
+        }
+
+        .settings-grid {
+            display: flex;
+            flex-direction: column;
+            gap: 15px;
+        }
+
+        .settings-grid label {
+            font-weight: 600;
+            font-size: 13px;
+            margin-bottom: 5px;
+            display: block;
+        }
+
+        /* نافذة شاشة قفل الترخيص (License Lock Screen) */
+        #licenseModal {
+            display: flex; /* تفتح تلقائياً عند عدم وجود ترخيص */
+            background: rgba(7, 69, 23, 0.95);
+            z-index: 9999;
+        }
+        .license-box {
+            background: white;
+            padding: 30px;
+            border-radius: 16px;
+            max-width: 420px;
+            width: 100%;
+            text-align: center;
+            box-shadow: 0 10px 25px rgba(0,0,0,0.3);
+        }
+        .license-box h2 {
+            color: var(--primary-dark);
+            margin-bottom: 10px;
+            font-size: 22px;
+        }
+        .license-box p {
+            font-size: 14px;
+            color: #666;
+            margin-bottom: 20px;
+            line-height: 1.6;
+        }
+        .device-id-badge {
+            background: #f1f5f2;
+            padding: 10px;
+            border-radius: 8px;
+            font-family: monospace;
+            font-size: 16px;
+            font-weight: bold;
+            color: var(--primary-color);
+            margin-bottom: 15px;
+            border: 1px dashed var(--primary-color);
+            word-break: break-all;
+        }
+    </style>
+</head>
+<body>
+
+<!-- شاشة حماية الترخيص التلقائية عند أول فتح للتطبيق -->
+<div id="licenseModal" class="modal">
+    <div class="license-box">
+        <h2>🔒 تفعيل النسخة المدفوعة</h2>
+        <p>هذا التطبيق مرخص لجهاز واحد فقط. يرجى إرسال معرف جهازك (Device ID) عبر واتساب للحصول على مفتاح التفعيل الخاص بك:</p>
+        
+        <div class="device-id-badge" id="displayDeviceId">جاري توليد البصمة...</div>
+        
+        <div style="margin-bottom: 15px;">
+            <input type="text" id="licenseKeyInput" placeholder="أدخل مفتاح التفعيل هنا (License Key)..." style="width: 100%; text-align: center; padding: 12px; font-weight: bold; letter-spacing: 1px;">
+        </div>
+        
+        <button class="btn-primary" onclick="verifyAndActivateLicense()" style="width: 100%; padding: 12px; font-size: 15px;">تفعيل التطبيق للأبد 🚀</button>
+        
+        <div style="margin-top: 15px;">
+            <a href="https://wa.me/" id="waSupportBtn" target="_blank" class="btn-whatsapp" style="width: 100%; justify-content: center; padding: 10px; font-size: 14px;">💬 اطلب مفتاح التفعيل عبر واتساب</a>
+        </div>
+    </div>
+</div>
+
+<div class="container">
+    <header>
+        <h1 id="mainTitle">نظام إدارة فريق فوريفر (Smart Team CRM)</h1>
+        <p id="subTitle">نظم أوقاتك، تابع عملائك المحتملين، وطوّر فريقك بذكاء</p>
+    </header>
+
+    <button class="settings-bottom-floating" onclick="openSettingsModal()" id="settingsBtnTxt">⚙️ إعدادات التطبيق</button>
+
+    <div class="top-nav-bar">
+        <div class="tabs">
+            <button class="tab-btn active" onclick="switchTab('prospects', event)" id="tab1Btn">1. العملاء المحتملين (Prospects)</button>
+            <button class="tab-btn" onclick="switchTab('team', event)" id="tab2Btn">2. فريق الموزعين والتدريبات</button>
+            <button class="tab-btn" onclick="switchTab('customers', event)" id="tab3Btn">3. الزبناء والمشتريات</button>
+        </div>
+    </div>
+
+    <!-- 1. قسم العملاء المحتملين -->
+    <div id="prospects" class="section-panel active">
+        <h3 id="pSectionTitle">إضافة عميل محتمل جديد</h3>
+        <div class="form-group">
+            <input type="text" id="pName" placeholder="اسم الشخص">
+            <input type="text" id="pPhone" placeholder="رقم الهاتف">
+            <select id="pStatus" onchange="checkCustomStatus(this)">
+                <option value="جديد">جديد</option>
+                <option value="تم التواصل">تم التواصل</option>
+                <option value="تم اللقاء">تم اللقاء / عرض الفكرة</option>
+                <option value="مدعو للمقر">مدعو لزيارة المقر</option>
+                <option value="أخرى">أخرى...</option>
+            </select>
+            <button class="btn-primary" onclick="addProspect()" id="pAddBtn">إضافة للقائمة</button>
+        </div>
+        <div id="customStatusContainer" style="display:none; margin-bottom:15px;">
+            <input type="text" id="customStatusInput" placeholder="اكتب حالة مخصصة جديدة..." style="width:100%; padding:8px;">
+        </div>
+
+        <div class="search-box">
+            <input type="text" id="searchProspects" placeholder="🔍 ابحث بالاسم أو رقم الهاتف..." oninput="renderAll()">
+        </div>
+
+        <h3 id="pListTitle">قائمة الانتظار والمتابعة</h3>
+        <div id="prospectsListContainer"></div>
+    </div>
+
+    <!-- 2. قسم فريق الموزعين والتدريبات -->
+    <div id="team" class="section-panel">
+        <h3 id="tSectionTitle">إضافة موزع جديد للفريق</h3>
+        <div class="form-group">
+            <input type="text" id="tName" placeholder="اسم الموزع">
+            <input type="text" id="tPhone" placeholder="رقم الهاتف">
+            <select id="tRank">
+                <option value="Distributeur">Distributeur</option>
+                <option value="Animateur adjoint">Animateur adjoint</option>
+                <option value="Animateur">Animateur</option>
+                <option value="Manager adjoint">Manager adjoint</option>
+                <option value="Manager">Manager</option>
+                <option value="Senior Manager">Senior Manager</option>
+                <option value="Soaring Manager">Soaring Manager</option>
+                <option value="Sapphire Manager">Sapphire Manager</option>
+                <option value="Diamond-Sapphire Manager">Diamond-Sapphire Manager</option>
+                <option value="Diamond Manager">Diamond Manager</option>
+                <option value="Double Diamond Manager">Double Diamond Manager</option>
+                <option value="Triple Diamond Manager">Triple Diamond Manager</option>
+                <option value="Centurion Manager">Centurion Manager</option>
+            </select>
+            <button class="btn-primary" onclick="addTeamMemberManual()" id="tAddBtn">إضافة موزع</button>
+        </div>
+
+        <h3 id="tListTitle" style="margin-top: 20px;">فريق الموزعين المنضمين والتدريبات</h3>
+        <div class="search-box" style="margin-top: 10px;">
+            <input type="text" id="searchTeam" placeholder="🔍 ابحث بالاسم أو رقم الهاتف..." oninput="renderAll()">
+        </div>
+        <div id="teamListContainer"></div>
+    </div>
+
+    <!-- 3. قسم الزبناء والمشتريات -->
+    <div id="section-customers" class="section-panel">
+        <h3 id="cSectionTitle">إضافة زبون جديد للمنتجات</h3>
+        <div class="form-group">
+            <input type="text" id="cName" placeholder="اسم الزبون">
+            <input type="text" id="cPhone" placeholder="رقم الهاتف">
+            <input type="text" id="cProduct" placeholder="اسم المنتج المشترى">
+            <input type="number" id="cPrice" placeholder="السعر">
+            <button class="btn-primary" onclick="addCustomer()" id="cAddBtn">حفظ الزبون</button>
+        </div>
+
+        <div class="search-box">
+            <input type="text" id="searchCustomers" placeholder="🔍 ابحث بالاسم أو رقم الهاتف..." oninput="renderAll()">
+        </div>
+
+        <h3 id="cListTitle">سجل الزبناء والمشتريات (اضغط على الزبون لإضافة مشتريات)</h3>
+        <div id="customersList"></div>
+    </div>
+
+</div>
+
+<!-- Modal تعديل موزع -->
+<div id="teamModal" class="modal">
+    <div class="modal-content">
+        <button class="close-modal" onclick="closeTeamModal()">×</button>
+        <h3 id="modalMemberTitle">تعديل بيانات الموزع والرتبة والملاحظات</h3>
+        <input type="hidden" id="editMemberId">
+        <div class="settings-grid">
+            <div>
+                <label>اسم الموزع</label>
+                <input type="text" id="editMemberName" style="width:100%;">
+            </div>
+            <div>
+                <label>رقم الهاتف</label>
+                <input type="text" id="editMemberPhone" style="width:100%;">
+            </div>
+            <div>
+                <label>رتبة الموزع (Rank)</label>
+                <select id="editMemberRank" style="width:100%;">
+                    <option value="Distributeur">Distributeur</option>
+                    <option value="Animateur adjoint">Animateur adjoint</option>
+                    <option value="Animateur">Animateur</option>
+                    <option value="Manager adjoint">Manager adjoint</option>
+                    <option value="Manager">Manager</option>
+                    <option value="Senior Manager">Senior Manager</option>
+                    <option value="Soaring Manager">Soaring Manager</option>
+                    <option value="Sapphire Manager">Sapphire Manager</option>
+                    <option value="Diamond-Sapphire Manager">Diamond-Sapphire Manager</option>
+                    <option value="Diamond Manager">Diamond Manager</option>
+                    <option value="Double Diamond Manager">Double Diamond Manager</option>
+                    <option value="Triple Diamond Manager">Triple Diamond Manager</option>
+                    <option value="Centurion Manager">Centurion Manager</option>
+                </select>
+            </div>
+            <div>
+                <label>ملاحظات شخصية</label>
+                <textarea id="editMemberNotes" rows="3" style="width:100%; border:1px solid #ccc; border-radius:6px; padding:10px;" placeholder="أكتب ملاحظاتك هنا..."></textarea>
+            </div>
+            <button class="btn-primary" onclick="saveTeamMemberEdits()" id="saveMemberBtn">حفظ التعديلات</button>
+        </div>
+    </div>
+</div>
+
+<!-- Modal إضافة مشتريات -->
+<div id="purchaseModal" class="modal">
+    <div class="modal-content">
+        <button class="close-modal" onclick="closePurchaseModal()">×</button>
+        <h3 id="modalPurchaseTitle">إضافة مشتريات جديدة للزبون</h3>
+        <input type="hidden" id="activeCustomerId">
+        <div class="settings-grid">
+            <div>
+                <label>اسم المنتج</label>
+                <input type="text" id="newProdName" style="width:100%;" placeholder="مثال: Aloe Vera Gel">
+            </div>
+            <div>
+                <label id="priceLabelModal">السعر</label>
+                <input type="number" id="newProdPrice" style="width:100%;" placeholder="السعر">
+            </div>
+            <button class="btn-primary" onclick="saveNewPurchase()" id="savePurchaseBtn">إضافة المشتريات</button>
+        </div>
+    </div>
+</div>
+
+<!-- Modal الإعدادات -->
+<div id="settingsModal" class="modal">
+    <div class="modal-content">
+        <button class="close-modal" onclick="closeSettingsModal()">×</button>
+        <h3 id="settingsModalTitle">إعدادات التطبيق</h3>
+        <div class="settings-grid">
+            <div>
+                <label id="setLangLabel">لغة التطبيق</label>
+                <select id="appLang" onchange="changeLanguage(this.value)">
+                    <option value="ar">العربية (Arabic)</option>
+                    <option value="fr">الفرنسية (Français)</option>
+                    <option value="en">الإنجليزية (English)</option>
+                </select>
+            </div>
+            <div>
+                <label id="setCurrLabel">عملة التطبيق</label>
+                <select id="appCurrency" style="width:100%;"></select>
+            </div>
+            <div>
+                <label id="setExportLabel">تصدير واستيراد البيانات</label>
+                <div style="display:flex; gap:10px;">
+                    <button class="btn-primary" onclick="exportData()" style="flex:1;" id="exportBtn">تصدير (Backup)</button>
+                    <label class="btn-primary" style="flex:1; text-align:center; padding:10px; cursor:pointer; background:#17a2b8;" id="importLabel">
+                        استيراد (Restore)
+                        <input type="file" id="importFile" style="display:none;" onchange="importData(event)">
+                    </label>
+                </div>
+            </div>
+            <button class="btn-primary" onclick="saveSettings()" id="saveSettingsBtn" style="margin-top:10px;">حفظ الإعدادات</button>
+        </div>
+    </div>
+</div>
+
+<script>
+    /* نظام توليد بصمة الجهاز الفريدة (Device Fingerprinting) */
+    function getOrCreateDeviceId() {
+        let deviceId = localStorage.getItem('forever_device_id');
+        if (!deviceId) {
+            // توليد بصمة فريدة تعتمد على المتصفح وتاريخ عشوائي ورقم عشوائي
+            let randomPart = Math.random().toString(36.substring(2, 9));
+            let timePart = Date.now().toString(36);
+            deviceId = "FRV-" + (randomPart + timePart).toUpperCase();
+            localStorage.setItem('forever_device_id', deviceId);
+        }
+        return deviceId;
+    }
+
+    const myDeviceId = getOrCreateDeviceId();
+    document.getElementById('displayDeviceId').innerText = myDeviceId;
+    document.getElementById('waSupportBtn').href = "https://wa.me/?text=" + encodeURIComponent("مرحباً، أود تفعيل تطبيق فوريفر CRM. معرف جهازي هو: " + myDeviceId);
+
+    /* معادلة توليد مفتاح التفعيل بناءً على الـ Device ID الخاص بك */
+    function generateValidLicenseKey(devId) {
+        let cleaned = devId.replace(/[^A-Z0-9]/g, '');
+        let hash = 0;
+        for (let i = 0; i < cleaned.length; i++) {
+            hash = ((hash << 5) - hash) + cleaned.charCodeAt(i);
+            hash |= 0;
+        }
+        return "KEY-" + Math.abs(hash).toString(36).toUpperCase() + "-FORIVER";
+    }
+
+    function checkLicenseStatus() {
+        let savedKey = localStorage.getItem('forever_license_key');
+        let expectedKey = generateValidLicenseKey(myDeviceId);
+
+        if (savedKey === expectedKey) {
+            document.getElementById('licenseModal').style.display = 'none';
+        } else {
+            document.getElementById('licenseModal').style.display = 'flex';
+        }
+    }
+
+    function verifyAndActivateLicense() {
+        let userInput = document.getElementById('licenseKeyInput').value.trim();
+        let expectedKey = generateValidLicenseKey(myDeviceId);
+
+        if (userInput === expectedKey) {
+            localStorage.setItem('forever_license_key', userInput);
+            alert('تم تفعيل التطبيق بنجاح للأبد! شكراً لثقتك.');
+            document.getElementById('licenseModal').style.display = 'none';
+            renderAll();
+        } else {
+            alert('مفتاح التفعيل غير صحيح لهذا الجهاز. تأكد من إرسال معرف الجهاز الصحيح للمطور.');
+        }
+    }
+
+    const worldCurrencies = [
+        "درهم", "USD ($)", "EUR (€)", "GBP (£)", "CAD ($)", "AUD ($)", "CHF (CHF)", "JPY (¥)", "CNY (¥)",
+        "AED (د.إ)", "SAR (ر.س)", "QAR (ر.ق)", "KWD (د.ك)", "BHD (د.ب)", "OMR (ر.ع)", "JOD (د.أ)",
+        "EGP (ج.م)", "TND (د.ت)", "DZD (د.ج)", "IQD (ع.د)", "LBP (ل.ل)", "YER (ر.ي)", "SDG (ج.س)",
+        "TRY (₺)", "INR (₹)", "PKR (₨)", "IDR (Rp)", "MYR (RM)", "SGD ($)", "THB (฿)", "ZAR (R)",
+        "NGN (₦)", "KES (KSh)", "GHS (GH₵)", "BRL (R$)", "MXN ($)", "ARS ($)", "CLP ($)", "COP ($)"
+    ];
+
+    function populateCurrencies(selectedCurr) {
+        let select = document.getElementById('appCurrency');
+        let html = '';
+        worldCurrencies.forEach(c => {
+            html += `<option value="${c}" ${c === selectedCurr ? 'selected' : ''}>${c}</option>`;
+        });
+        select.innerHTML = html;
+    }
+
+    let data = JSON.parse(localStorage.getItem('forever_crm_data_v6')) || {
+        prospects: [],
+        team: [],
+        customers: [],
+        settings: {
+            currency: 'درهم',
+            lang: 'ar',
+            customStatuses: ['جديد', 'تم التواصل', 'تم اللقاء', 'مدعو للمقر']
+        }
+    };
+
+    if(!data.settings.currency) data.settings.currency = 'درهم';
+    populateCurrencies(data.settings.currency);
+
+    const translations = {
+        ar: {
+            appTitle: "نظام إدارة فريق فوريفر (Smart Team CRM)",
+            subTitle: "نظم أوقاتك، تابع عملائك المحتملين، وطوّر فريقك بذكاء",
+            settingsBtn: "⚙️ إعدادات التطبيق",
+            tab1: "1. العملاء المحتملين (Prospects)",
+            tab2: "2. فريق الموزعين والتدريبات",
+            tab3: "3. الزبناء والمشتريات",
+            pSectionTitle: "إضافة عميل محتمل جديد",
+            pNamePh: "اسم الشخص",
+            pPhonePh: "رقم الهاتف",
+            pAddBtn: "إضافة للقائمة",
+            pListTitle: "قائمة الانتظار والمتابعة",
+            searchProspectsPh: "🔍 ابحث بالاسم أو رقم الهاتف...",
+            tSectionTitle: "إضافة موزع جديد للفريق",
+            tNamePh: "اسم الموزع",
+            tPhonePh: "رقم الهاتف",
+            tAddBtn: "إضافة موزع",
+            tListTitle: "فريق الموزعين المنضمين والتدريبات",
+            searchTeamPh: "🔍 ابحث بالاسم أو رقم الهاتف...",
+            cSectionTitle: "إضافة زبون جديد للمنتجات",
+            cNamePh: "اسم الزبون",
+            cPhonePh: "رقم الهاتف",
+            cProdPh: "اسم المنتج المشترى",
+            cPricePh: "السعر",
+            cAddBtn: "حفظ الزبون",
+            searchCustomersPh: "🔍 ابحث بالاسم أو رقم الهاتف...",
+            cListTitle: "سجل الزبناء والمشتريات (اضغط على الزبون لإضافة مشتريات)",
+            whatsapp: "واتساب",
+            call: "اتصال",
+            delete: "حذف",
+            convertTeam: "تحويل للفريق",
+            convertCust: "تحويل لزبون",
+            editNotes: "تعديل وبيانات ورتبة",
+            activeBtn: "⭐ نشط",
+            t1: "تدريب البداية",
+            t2: "تدريب المنتجات",
+            t3: "تدريب الاستقطاب",
+            settingsTitle: "إعدادات التطبيق",
+            langLabel: "لغة التطبيق",
+            currLabel: "عملة التطبيق",
+            exportLabel: "تصدير واستيراد البيانات",
+            exportBtn: "تصدير (Backup)",
+            importLabel: "استيراد (Restore)",
+            saveSettingsBtn: "حفظ الإعدادات",
+            modalMemberTitle: "تعديل بيانات الموزع والرتبة والملاحظات",
+            saveMemberBtn: "حفظ التعديلات",
+            modalPurchaseTitle: "إضافة مشتريات جديدة للزبون",
+            savePurchaseBtn: "إضافة المشتريات",
+            otherStatus: "أخرى..."
+        },
+        fr: {
+            appTitle: "Système de Gestion d'Équipe Forever (CRM)",
+            subTitle: "Organisez votre temps, suivez vos prospects et développez votre équipe",
+            settingsBtn: "⚙️ Paramètres",
+            tab1: "1. Prospects",
+            tab2: "2. Équipe & Formations",
+            tab3: "3. Clients & Achats",
+            pSectionTitle: "Ajouter un nouveau prospect",
+            pNamePh: "Nom complet",
+            pPhonePh: "Numéro de téléphone",
+            pAddBtn: "Ajouter",
+            pListTitle: "Liste d'attente et Suivi",
+            searchProspectsPh: "🔍 Rechercher par nom ou téléphone...",
+            tSectionTitle: "Ajouter un nouveau distributeur",
+            tNamePh: "Nom du distributeur",
+            tPhonePh: "Téléphone",
+            tAddBtn: "Ajouter",
+            tListTitle: "Équipe et Formations",
+            searchTeamPh: "🔍 Rechercher par nom ou téléphone...",
+            cSectionTitle: "Ajouter un nouveau client",
+            cNamePh: "Nom du client",
+            cPhonePh: "Numéro de téléphone",
+            cProdPh: "Nom du produit",
+            cPricePh: "Prix",
+            cAddBtn: "Enregistrer",
+            searchCustomersPh: "🔍 Rechercher par nom ou téléphone...",
+            cListTitle: "Registre des clients (Cliquez sur un client pour ajouter des achats)",
+            whatsapp: "WhatsApp",
+            call: "Appeler",
+            delete: "Supprimer",
+            convertTeam: "Convertir en Distributeur",
+            convertCust: "Convertir en Client",
+            editNotes: "Modifier & Rang",
+            activeBtn: "⭐ Actif",
+            t1: "Formation Initiale",
+            t2: "Formation Produits",
+            t3: "Formation Parrainage",
+            settingsTitle: "Paramètres de l'application",
+            langLabel: "Langue de l'application",
+            currLabel: "Devise",
+            exportLabel: "Exportation & Importation",
+            exportBtn: "Exporter (Backup)",
+            importLabel: "Importer (Restore)",
+            saveSettingsBtn: "Enregistrer",
+            modalMemberTitle: "Modifier le distributeur, rang et notes",
+            saveMemberBtn: "Enregistrer",
+            modalPurchaseTitle: "Ajouter un nouvel achat",
+            savePurchaseBtn: "Ajouter",
+            otherStatus: "Autre..."
+        },
+        en: {
+            appTitle: "Forever Team Management (Smart CRM)",
+            subTitle: "Organize your time, track prospects, and grow your team smartly",
+            settingsBtn: "⚙️ App Settings",
+            tab1: "1. Prospects",
+            tab2: "2. Team & Trainings",
+            tab3: "3. Customers & Purchases",
+            pSectionTitle: "Add New Prospect",
+            pNamePh: "Person Name",
+            pPhonePh: "Phone Number",
+            pAddBtn: "Add to List",
+            pListTitle: "Queue & Follow-up",
+            searchProspectsPh: "🔍 Search by name or phone...",
+            tSectionTitle: "Add New Team Member",
+            tNamePh: "Member Name",
+            tPhonePh: "Phone Number",
+            tAddBtn: "Add Member",
+            tListTitle: "Team Members & Trainings",
+            searchTeamPh: "🔍 Search by name or phone...",
+            cSectionTitle: "Add New Customer",
+            cNamePh: "Customer Name",
+            cPhonePh: "Phone Number",
+            cProdPh: "Product Name",
+            cPricePh: "Price",
+            cAddBtn: "Save Customer",
+            searchCustomersPh: "🔍 Search by name or phone...",
+            cListTitle: "Customer Records (Click customer to add purchases)",
+            whatsapp: "WhatsApp",
+            call: "Call",
+            delete: "Delete",
+            convertTeam: "Convert to Team",
+            convertCust: "Convert to Customer",
+            editNotes: "Edit & Rank",
+            activeBtn: "⭐ Active",
+            t1: "Starter Training",
+            t2: "Products Training",
+            t3: "Sponsoring Training",
+            settingsTitle: "App Settings",
+            langLabel: "App Language",
+            currLabel: "Currency",
+            exportLabel: "Export & Import Data",
+            exportBtn: "Export (Backup)",
+            importLabel: "Import (Restore)",
+            saveSettingsBtn: "Save Settings",
+            modalMemberTitle: "Edit Team Member, Rank & Notes",
+            saveMemberBtn: "Save Changes",
+            modalPurchaseTitle: "Add New Purchase",
+            savePurchaseBtn: "Add Purchase",
+            otherStatus: "Other..."
+        }
+    };
+
+    function t(key) {
+        let lang = data.settings.lang || 'ar';
+        return translations[lang][key] || translations['ar'][key] || key;
+    }
+
+    function applyTranslations() {
+        document.getElementById('htmlRoot').setAttribute('dir', data.settings.lang === 'ar' ? 'rtl' : 'ltr');
+        document.getElementById('htmlRoot').setAttribute('lang', data.settings.lang);
+        document.getElementById('appTitle').innerText = t('appTitle');
+        document.getElementById('mainTitle').innerText = t('appTitle');
+        document.getElementById('subTitle').innerText = t('subTitle');
+        document.getElementById('settingsBtnTxt').innerText = t('settingsBtn');
+        document.getElementById('tab1Btn').innerText = t('tab1');
+        document.getElementById('tab2Btn').innerText = t('tab2');
+        document.getElementById('tab3Btn').innerText = t('tab3');
+
+        document.getElementById('pSectionTitle').innerText = t('pSectionTitle');
+        document.getElementById('pName').placeholder = t('pNamePh');
+        document.getElementById('pPhone').placeholder = t('pPhonePh');
+        document.getElementById('pAddBtn').innerText = t('pAddBtn');
+        document.getElementById('pListTitle').innerText = t('pListTitle');
+        document.getElementById('searchProspects').placeholder = t('searchProspectsPh');
+
+        document.getElementById('tSectionTitle').innerText = t('tSectionTitle');
+        document.getElementById('tName').placeholder = t('tNamePh');
+        document.getElementById('tPhone').placeholder = t('tPhonePh');
+        document.getElementById('tAddBtn').innerText = t('tAddBtn');
+        document.getElementById('tListTitle').innerText = t('tListTitle');
+        document.getElementById('searchTeam').placeholder = t('searchTeamPh');
+
+        document.getElementById('cSectionTitle').innerText = t('cSectionTitle');
+        document.getElementById('cName').placeholder = t('cNamePh');
+        document.getElementById('cPhone').placeholder = t('cPhonePh');
+        document.getElementById('cProduct').placeholder = t('cProdPh');
+        document.getElementById('cPrice').placeholder = t('cPricePh');
+        document.getElementById('cAddBtn').innerText = t('cAddBtn');
+        document.getElementById('searchCustomers').placeholder = t('searchCustomersPh');
+        document.getElementById('cListTitle').innerText = t('cListTitle');
+
+        document.getElementById('settingsModalTitle').innerText = t('settingsTitle');
+        document.getElementById('setLangLabel').innerText = t('langLabel');
+        document.getElementById('setCurrLabel').innerText = t('currLabel');
+        document.getElementById('setExportLabel').innerText = t('exportLabel');
+        document.getElementById('exportBtn').innerText = t('exportBtn');
+        document.getElementById('importLabel').innerText = t('importLabel');
+        document.getElementById('saveSettingsBtn').innerText = t('saveSettingsBtn');
+
+        document.getElementById('modalMemberTitle').innerText = t('modalMemberTitle');
+        document.getElementById('saveMemberBtn').innerText = t('saveMemberBtn');
+        document.getElementById('modalPurchaseTitle').innerText = t('modalPurchaseTitle');
+        document.getElementById('savePurchaseBtn').innerText = t('savePurchaseBtn');
+
+        updateStatusDropdownOptions();
+    }
+
+    function updateStatusDropdownOptions() {
+        let select = document.getElementById('pStatus');
+        let currentVal = select.value;
+        let statuses = data.settings.customStatuses || ['جديد', 'تم التواصل', 'تم اللقاء', 'مدعو للمقر'];
+        
+        let html = '';
+        statuses.forEach(st => {
+            html += `<option value="${st}">${st}</option>`;
+        });
+        html += `<option value="أخرى">${t('otherStatus')}</option>`;
+        select.innerHTML = html;
+        select.value = statuses.includes(currentVal) ? currentVal : 'جديد';
+    }
+
+    function saveData() {
+        localStorage.setItem('forever_crm_data_v6', JSON.stringify(data));
+        renderAll();
+    }
+
+    function switchTab(tabId, event) {
+        document.querySelectorAll('.section-panel').forEach(el => el.classList.remove('active'));
+        document.querySelectorAll('.tab-btn').forEach(el => el.classList.remove('active'));
+        
+        let targetId = tabId === 'customers' ? 'section-customers' : tabId;
+        document.getElementById(targetId).classList.add('active');
+        event.currentTarget.classList.add('active');
+    }
+
+    function checkCustomStatus(select) {
+        let customContainer = document.getElementById('customStatusContainer');
+        if(select.value === 'أخرى') {
+            customContainer.style.display = 'block';
+        } else {
+            customContainer.style.display = 'none';
+        }
+    }
+
+    function addProspect() {
+        const name = document.getElementById('pName').value.trim();
+        const phone = document.getElementById('pPhone').value.trim();
+        let statusSelect = document.getElementById('pStatus');
+        let status = statusSelect.value;
+
+        if(status === 'أخرى') {
+            let customInput = document.getElementById('customStatusInput').value.trim();
+            if(!customInput) {
+                alert('الرجاء كتابة الحالة المخصصة.');
+                return;
+            }
+            status = customInput;
+            if(!data.settings.customStatuses.includes(status)) {
+                data.settings.customStatuses.push(status);
+            }
+            document.getElementById('customStatusInput').value = '';
+            document.getElementById('customStatusContainer').style.display = 'none';
+        }
+
+        if(!name || !phone) {
+            alert('الرجاء إدخال الاسم ورقم الهاتف على الأقل.');
+            return;
+        }
+
+        data.prospects.push({ id: Date.now(), name, phone, status });
+        document.getElementById('pName').value = '';
+        document.getElementById('pPhone').value = '';
+        saveData();
+    }
+
+    function updateProspectStatus(id, newStatus) {
+        if(newStatus === 'أخرى') {
+            let customVal = prompt('أدخل الحالة الجديدة المخصصة:');
+            if(customVal && customVal.trim() !== '') {
+                newStatus = customVal.trim();
+                if(!data.settings.customStatuses.includes(newStatus)) {
+                    data.settings.customStatuses.push(newStatus);
+                }
+            } else {
+                return;
+            }
+        }
+        let p = data.prospects.find(x => x.id === id);
+        if(p) {
+            p.status = newStatus;
+            saveData();
+        }
+    }
+
+    function deleteProspect(id) {
+        data.prospects = data.prospects.filter(x => x.id !== id);
+        saveData();
+    }
+
+    function convertToTeam(id) {
+        let p = data.prospects.find(x => x.id === id);
+        if(p) {
+            data.team.push({
+                id: Date.now(),
+                name: p.name,
+                phone: p.phone,
+                date: new Date().toLocaleDateString(),
+                t1: false,
+                t2: false,
+                t3: false,
+                rank: 'Distributeur',
+                active: false,
+                notes: ''
+            });
+            deleteProspect(id);
+        }
+    }
+
+    function convertToCustomerFromProspect(id) {
+        let p = data.prospects.find(x => x.id === id);
+        if(p) {
+            data.customers.push({
+                id: Date.now(),
+                name: p.name,
+                phone: p.phone,
+                purchases: []
+            });
+            deleteProspect(id);
+        }
+    }
+
+    function addTeamMemberManual() {
+        const name = document.getElementById('tName').value.trim();
+        const phone = document.getElementById('tPhone').value.trim();
+        const rank = document.getElementById('tRank').value;
+
+        if(!name || !phone) {
+            alert('الرجاء إدخال اسم الموزع ورقم الهاتف.');
+            return;
+        }
+
+        data.team.push({
+            id: Date.now(),
+            name,
+            phone,
+            date: new Date().toLocaleDateString(),
+            t1: false,
+            t2: false,
+            t3: false,
+            rank: rank || 'Distributeur',
+            active: false,
+            notes: ''
+        });
+
+        document.getElementById('tName').value = '';
+        document.getElementById('tPhone').value = '';
+        saveData();
+    }
+
+    function toggleTraining(teamId, field) {
+        let member = data.team.find(x => x.id === teamId);
+        if(member) {
+            member[field] = !member[field];
+            saveData();
+        }
+    }
+
+    function toggleActiveStatus(teamId) {
+        let member = data.team.find(x => x.id === teamId);
+        if(member) {
+            member.active = !member.active;
+            saveData();
+        }
+    }
+
+    function deleteTeamMember(id) {
+        data.team = data.team.filter(x => x.id !== id);
+        saveData();
+    }
+
+    function openTeamModal(id) {
+        let member = data.team.find(x => x.id === id);
+        if(member) {
+            document.getElementById('editMemberId').value = member.id;
+            document.getElementById('editMemberName').value = member.name;
+            document.getElementById('editMemberPhone').value = member.phone;
+            document.getElementById('editMemberRank').value = member.rank || 'Distributeur';
+            document.getElementById('editMemberNotes').value = member.notes || '';
+            document.getElementById('teamModal').style.display = 'flex';
+        }
+    }
+
+    function closeTeamModal() {
+        document.getElementById('teamModal').style.display = 'none';
+    }
+
+    function saveTeamMemberEdits() {
+        let id = Number(document.getElementById('editMemberId').value);
+        let member = data.team.find(x => x.id === id);
+        if(member) {
+            member.name = document.getElementById('editMemberName').value.trim();
+            member.phone = document.getElementById('editMemberPhone').value.trim();
+            member.rank = document.getElementById('editMemberRank').value;
+            member.notes = document.getElementById('editMemberNotes').value.trim();
+            saveData();
+            closeTeamModal();
+        }
+    }
+
+    function addCustomer() {
+        const name = document.getElementById('cName').value.trim();
+        const phone = document.getElementById('cPhone').value.trim();
+        const product = document.getElementById('cProduct').value.trim();
+        const price = document.getElementById('cPrice').value.trim();
+        let currency = data.settings.currency || 'درهم';
+
+        if(!name || !phone) {
+            alert('الرجاء إدخال اسم الزبون ورقم الهاتف.');
+            return;
+        }
+
+        let existingCustomer = data.customers.find(x => x.phone === phone);
+        
+        if(existingCustomer) {
+            if(product) {
+                existingCustomer.purchases.push({
+                    product,
+                    price: price ? `${price} ${currency}` : 'غير محدد',
+                    date: new Date().toLocaleDateString()
+                });
+            }
+        } else {
+            data.customers.push({
+                id: Date.now(),
+                name,
+                phone,
+                purchases: product ? [{ product, price: price ? `${price} ${currency}` : 'غير محدد', date: new Date().toLocaleDateString() }] : []
+            });
+        }
+
+        document.getElementById('cName').value = '';
+        document.getElementById('cPhone').value = '';
+        document.getElementById('cProduct').value = '';
+        document.getElementById('cPrice').value = '';
+        saveData();
+    }
+
+    function deleteCustomer(id) {
+        data.customers = data.customers.filter(x => x.id !== id);
+        saveData();
+    }
+
+    function openPurchaseModal(customerId) {
+        document.getElementById('activeCustomerId').value = customerId;
+        document.getElementById('newProdName').value = '';
+        document.getElementById('newProdPrice').value = '';
+        document.getElementById('purchaseModal').style.display = 'flex';
+    }
+
+    function closePurchaseModal() {
+        document.getElementById('purchaseModal').style.display = 'none';
+    }
+
+    function saveNewPurchase() {
+        let customerId = Number(document.getElementById('activeCustomerId').value);
+        let product = document.getElementById('newProdName').value.trim();
+        let price = document.getElementById('newProdPrice').value.trim();
+        let currency = data.settings.currency || 'درهم';
+
+        if(!product) {
+            alert('الرجاء إدخال اسم المنتج.');
+            return;
+        }
+
+        let customer = data.customers.find(x => x.id === customerId);
+        if(customer) {
+            customer.purchases.push({
+                product,
+                price: price ? `${price} ${currency}` : 'غير محدد',
+                date: new Date().toLocaleDateString()
+            });
+            saveData();
+            closePurchaseModal();
+        }
+    }
+
+    function openSettingsModal() {
+        document.getElementById('appLang').value = data.settings.lang || 'ar';
+        populateCurrencies(data.settings.currency || 'درهم');
+        document.getElementById('settingsModal').style.display = 'flex';
+    }
+
+    function closeSettingsModal() {
+        document.getElementById('settingsModal').style.display = 'none';
+    }
+
+    function changeLanguage(lang) {
+        data.settings.lang = lang;
+        applyTranslations();
+    }
+
+    function saveSettings() {
+        data.settings.currency = document.getElementById('appCurrency').value;
+        data.settings.lang = document.getElementById('appLang').value;
+        saveData();
+        closeSettingsModal();
+    }
+
+    function exportData() {
+        let dataStr = "data:text/json;charset=utf-8," + encodeURIComponent(JSON.stringify(data, null, 2));
+        let downloadAnchor = document.createElement('a');
+        downloadAnchor.setAttribute("href", dataStr);
+        downloadAnchor.setAttribute("download", "forever_crm_backup.json");
+        document.body.appendChild(downloadAnchor);
+        downloadAnchor.click();
+        downloadAnchor.remove();
+    }
+
+    function importData(event) {
+        let file = event.target.files[0];
+        if(!file) return;
+        let reader = new FileReader();
+        reader.onload = function(e) {
+            try {
+                let parsed = JSON.parse(e.target.result);
+                if(parsed && parsed.prospects && parsed.team && parsed.customers) {
+                    data = parsed;
+                    if(!data.settings) data.settings = { currency: 'درهم', lang: 'ar', customStatuses: ['جديد', 'تم التواصل', 'تم اللقاء', 'مدعو للمقر'] };
+                    saveData();
+                    applyTranslations();
+                    alert('تم استيراد البيانات بنجاح!');
+                    closeSettingsModal();
+                } else {
+                    alert('ملف غير صالح.');
+                }
+            } catch(err) {
+                alert('حدث خطأ أثناء قراءة الملف.');
+            }
+        };
+        reader.readAsText(file);
+    }
+
+    function renderAll() {
+        let searchP = document.getElementById('searchProspects').value.toLowerCase();
+        let searchT = document.getElementById('searchTeam').value.toLowerCase();
+        let searchC = document.getElementById('searchCustomers').value.toLowerCase();
+
+        let pHTML = '';
+        let filteredProspects = data.prospects.filter(p => p.name.toLowerCase().includes(searchP) || p.phone.toLowerCase().includes(searchP));
+        
+        filteredProspects.forEach(p => {
+            let statuses = data.settings.customStatuses || ['جديد', 'تم التواصل', 'تم اللقاء', 'مدعو للمقر'];
+            let statusOptionsHTML = '';
+            statuses.forEach(st => {
+                statusOptionsHTML += `<option value="${st}" ${p.status===st?'selected':''}>${st}</option>`;
+            });
+            if(!statuses.includes(p.status)) {
+                statusOptionsHTML += `<option value="${p.status}" selected>${p.status}</option>`;
+            }
+            statusOptionsHTML += `<option value="أخرى">${t('otherStatus')}</option>`;
+
+            pHTML += `<div class="prospect-card">
+                <div class="card-header">
+                    <div>
+                        <strong>${p.name}</strong> (${p.phone})
+                    </div>
+                    <div>
+                        <select onchange="updateProspectStatus(${p.id}, this.value)" style="padding: 5px; font-size: 13px;">
+                            ${statusOptionsHTML}
+                        </select>
+                    </div>
+                </div>
+                <div class="card-actions">
+                    <a href="https://wa.me/${p.phone.replace(/[^0-9]/g, '')}" target="_blank" class="btn-whatsapp">💬 ${t('whatsapp')}</a>
+                    <a href="tel:${p.phone}" class="btn-call">📞 ${t('call')}</a>
+                    <button class="btn-sm btn-convert" onclick="convertToTeam(${p.id})">⭐ ${t('convertTeam')}</button>
+                    <button class="btn-sm btn-convert" style="background:#17a2b8; color:white;" onclick="convertToCustomerFromProspect(${p.id})">🛍️ ${t('convertCust')}</button>
+                    <button class="btn-sm btn-delete" onclick="deleteProspect(${p.id})">🗑️ ${t('delete')}</button>
+                </div>
+            </div>`;
+        });
+        document.getElementById('prospectsListContainer').innerHTML = pHTML || `<p style="text-align:center; color:#777; padding:15px;">لا توجد بيانات حالياً</p>`;
+
+        let tHTML = '';
+        let filteredTeam = data.team.filter(m => m.name.toLowerCase().includes(searchT) || m.phone.toLowerCase().includes(searchT));
+
+        filteredTeam.forEach(m => {
+            let notesDisplay = m.notes ? `<div style="margin-top:8px; font-size:13px; color:#555; background:#f1f5f2; padding:8px; border-radius:6px;"><strong>ملاحظات:</strong> ${m.notes}</div>` : '';
+            let activeClass = m.active ? 'team-card active-member' : 'team-card';
+            let rankBadge = m.rank ? `<span style="background:var(--primary-color); color:white; padding:2px 8px; border-radius:4px; font-size:11px; margin-right:10px;">${m.rank}</span>` : '';
+
+            tHTML += `<div class="${activeClass}">
+                <div class="card-header" style="cursor:pointer;" onclick="openTeamModal(${m.id})" title="اضغط للتعديل والملاحظات والرتبة">
+                    <div>
+                        <strong>${m.name}</strong> (${m.phone}) ${rankBadge}
+                        <span style="font-size:12px; color:#777; margin-right:10px;">انضم: ${m.date}</span>
+                    </div>
+                    <div>
+                        <button class="btn-sm ${m.active ? 'btn-active-status' : 'btn-edit'}" onclick="event.stopPropagation(); toggleActiveStatus(${m.id})">${t('activeBtn')} (${m.active ? '✓' : '✗'})</button>
+                        <button class="btn-sm btn-edit" onclick="event.stopPropagation(); openTeamModal(${m.id})">✏️ ${t('editNotes')}</button>
+                    </div>
+                </div>
+                ${notesDisplay}
+                <div style="display:flex; gap:15px; margin-top:10px; flex-wrap:wrap; font-size:13px; align-items:center;">
+                    <label><input type="checkbox" ${m.t1 ? 'checked' : ''} onclick="toggleTraining(${m.id}, 't1')"> ${t('t1')}</label>
+                    <label><input type="checkbox" ${m.t2 ? 'checked' : ''} onclick="toggleTraining(${m.id}, 't2')"> ${t('t2')}</label>
+                    <label><input type="checkbox" ${m.t3 ? 'checked' : ''} onclick="toggleTraining(${m.id}, 't3')"> ${t('t3')}</label>
+                </div>
+                <div class="card-actions">
+                    <a href="https://wa.me/${m.phone.replace(/[^0-9]/g, '')}" target="_blank" class="btn-whatsapp">💬 ${t('whatsapp')}</a>
+                    <a href="tel:${m.phone}" class="btn-call">📞 ${t('call')}</a>
+                    <button class="btn-sm btn-delete" onclick="deleteTeamMember(${m.id})">🗑️ ${t('delete')}</button>
+                </div>
+            </div>`;
+        });
+        document.getElementById('teamListContainer').innerHTML = tHTML || `<p style="text-align:center; color:#777; padding:15px;">لا يوجد أعضاء منضمين حتى الآن</p>`;
+
+        let cHTML = '';
+        let filteredCustomers = data.customers.filter(c => c.name.toLowerCase().includes(searchC) || c.phone.toLowerCase().includes(searchC));
+
+        filteredCustomers.forEach(c => {
+            let purchasesHtml = c.purchases.length > 0 ? c.purchases.map(pr => `<li>اشتري: <strong>${pr.product}</strong> - السعر: ${pr.price} (بتاريخ: ${pr.date})</li>`).join('') : '<li>لا توجد مشتريات مسجلة بعد</li>';
+            
+            cHTML += `<div class="customer-card">
+                <div class="card-header" style="cursor:pointer;" onclick="openPurchaseModal(${c.id})" title="اضغط لإضافة مشتريات">
+                    <div>
+                        <strong>${c.name}</strong> (${c.phone})
+                        <span style="font-size:12px; color:var(--primary-color); font-weight:bold; margin-right:10px;">➕ اضغط لإضافة مشتريات</span>
+                    </div>
+                    <div>
+                        <button class="btn-sm btn-delete" onclick="event.stopPropagation(); deleteCustomer(${c.id})">🗑️ ${t('delete')}</button>
+                    </div>
+                </div>
+                <div style="display:flex; gap:10px; margin-bottom:5px;">
+                    <a href="https://wa.me/${c.phone.replace(/[^0-9]/g, '')}" target="_blank" class="btn-whatsapp">💬 ${t('whatsapp')}</a>
+                    <a href="tel:${c.phone}" class="btn-call">📞 ${t('call')}</a>
+                </div>
+                <ul class="purchase-list">
+                    ${purchasesHtml}
+                </ul>
+            </div>`;
+        });
+        document.getElementById('customersList').innerHTML = cHTML || `<p style="text-align:center; color:#777; padding:15px;">لا توجد سجلات زبناء حالياً</p>`;
+    }
+
+    applyTranslations();
+    checkLicenseStatus();
+    if(localStorage.getItem('forever_license_key')) {
+        renderAll();
+    }
+</script>
+
+</body>
+</html>
