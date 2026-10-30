@@ -44,7 +44,6 @@
             padding: 20px;
             border-radius: 12px;
             text-align: center;
-            margin-top: 0;
             margin-bottom: 25px;
             box-shadow: 0 4px 10px rgba(0,0,0,0.1);
         }
@@ -57,6 +56,15 @@
         header p {
             font-size: 14px;
             opacity: 0.9;
+        }
+
+        .user-welcome-badge {
+            margin-top: 10px;
+            font-size: 13px;
+            background: rgba(255,255,255,0.2);
+            padding: 5px 12px;
+            border-radius: 20px;
+            display: inline-block;
         }
 
         .settings-bottom-floating {
@@ -181,7 +189,7 @@
             background-color: var(--primary-dark);
         }
 
-        .prospect-card, .team-card, .customer-card {
+        .prospect-card, .team-card, .customer-card, .event-card {
             background: #fafcfb;
             border: 1px solid #e2e8e2;
             border-radius: 8px;
@@ -195,7 +203,7 @@
             border-color: #fbc02d !important;
         }
 
-        .prospect-card:hover, .team-card:hover, .customer-card:hover {
+        .prospect-card:hover, .team-card:hover, .customer-card:hover, .event-card:hover {
             box-shadow: 0 2px 6px rgba(0,0,0,0.05);
         }
 
@@ -255,6 +263,7 @@
         .btn-delete { background: var(--danger); color: white; }
         .btn-edit { background: #6c757d; color: white; }
         .btn-active-status { background: #fbc02d; color: #000; }
+        .btn-done { background: var(--success); color: white; }
 
         .purchase-list {
             margin-top: 8px;
@@ -313,26 +322,26 @@
             display: block;
         }
 
-        #licenseModal {
+        #licenseModal, #authModal, #registerModal {
             display: flex;
             background: rgba(7, 69, 23, 0.95);
             z-index: 9999;
         }
-        .license-box {
+        .license-box, .auth-box {
             background: white;
             padding: 30px;
             border-radius: 16px;
-            max-width: 420px;
+            max-width: 440px;
             width: 100%;
             text-align: center;
             box-shadow: 0 10px 25px rgba(0,0,0,0.3);
         }
-        .license-box h2 {
+        .license-box h2, .auth-box h2 {
             color: var(--primary-dark);
             margin-bottom: 10px;
             font-size: 22px;
         }
-        .license-box p {
+        .license-box p, .auth-box p {
             font-size: 14px;
             color: #666;
             margin-bottom: 20px;
@@ -354,21 +363,56 @@
 </head>
 <body>
 
-<div id="licenseModal" class="modal">
+<!-- نافذة الترخيص -->
+<div id="licenseModal" class="modal" style="display:none;">
     <div class="license-box">
         <h2>🔒 تفعيل النسخة المدفوعة</h2>
-        <p>هذا التطبيق مرخص لجهاز واحد فقط. يرجى إرسال معرف جهازك (Device ID) عبر واتساب للحصول على مفتاح التفعيل الخاص بك:</p>
-        
+        <p>هذا التطبيق مرخص لجهاز واحد فقط. يرجى إرسال معرف جهازك (Device ID) عبر واتساب للحصول على مفتاح التفعيل:</p>
         <div class="device-id-badge" id="displayDeviceId">...</div>
-        
         <div style="margin-bottom: 15px;">
-            <input type="text" id="licenseKeyInput" placeholder="أدخل مفتاح التفعيل هنا (License Key)..." style="width: 100%; text-align: center; padding: 12px; font-weight: bold; letter-spacing: 1px;">
+            <input type="text" id="licenseKeyInput" placeholder="أدخل مفتاح التفعيل هنا..." style="width: 100%; text-align: center; padding: 12px; font-weight: bold; letter-spacing: 1px;">
         </div>
-        
         <button class="btn-primary" onclick="verifyAndActivateLicense()" style="width: 100%; padding: 12px; font-size: 15px;">تفعيل التطبيق للأبد 🚀</button>
-        
         <div style="margin-top: 15px;">
             <a href="https://wa.me/" id="waSupportBtn" target="_blank" class="btn-whatsapp" style="width: 100%; justify-content: center; padding: 10px; font-size: 14px;">💬 اطلب مفتاح التفعيل عبر واتساب</a>
+        </div>
+    </div>
+</div>
+
+<!-- نافذة التسجيل الأولى -->
+<div id="registerModal" class="modal" style="display:none;">
+    <div class="auth-box">
+        <h2>✨ مرحباً بك في فوريفر CRM</h2>
+        <p>الرجاء إنشاء حسابك الأول (برقمك التسلسلي في الشركة أو اسم مستخدم مع كلمة مرور):</p>
+        <div class="settings-grid" style="text-align:right;">
+            <div>
+                <label>الرقم التسلسلي أو اسم المستخدم</label>
+                <input type="text" id="regUser" placeholder="مثال: FRV-12345 أو اسمك" style="width:100%;">
+            </div>
+            <div>
+                <label>كلمة المرور</label>
+                <input type="password" id="regPass" placeholder="كلمة المرور" style="width:100%;">
+            </div>
+            <button class="btn-primary" onclick="createFirstAccount()" style="padding:12px; width:100%; margin-top:5px;">إنشاء الحساب والبدء 🚀</button>
+        </div>
+    </div>
+</div>
+
+<!-- نافذة تسجيل الدخول -->
+<div id="authModal" class="modal" style="display:none;">
+    <div class="auth-box">
+        <h2>🔐 تسجيل الدخول للحساب</h2>
+        <p>الرجاء إدخال بيانات حسابك للدخول:</p>
+        <div class="settings-grid" style="text-align:right;">
+            <div>
+                <label>الرقم التسلسلي أو اسم المستخدم</label>
+                <input type="text" id="loginUser" placeholder="اسم المستخدم أو الرقم التسلسلي" style="width:100%;">
+            </div>
+            <div>
+                <label>كلمة المرور</label>
+                <input type="password" id="loginPass" placeholder="كلمة المرور" style="width:100%;">
+            </div>
+            <button class="btn-primary" onclick="processLogin()" style="padding:12px; width:100%; margin-top:5px;">دخول 🔓</button>
         </div>
     </div>
 </div>
@@ -377,15 +421,17 @@
     <header>
         <h1 id="mainTitle">نظام إدارة فريق فوريفر (Smart Team CRM)</h1>
         <p id="subTitle">نظم أوقاتك، تابع عملائك المحتملين، وطوّر فريقك بذكاء</p>
+        <div class="user-welcome-badge" id="activeUserBadge">👤 المستخدم: ...</div>
     </header>
 
     <button class="settings-bottom-floating" onclick="openSettingsModal()" id="settingsBtnTxt">⚙️ إعدادات التطبيق</button>
 
     <div class="top-nav-bar">
         <div class="tabs">
-            <button class="tab-btn active" onclick="switchTab('prospects', event)" id="tab1Btn">1. العملاء المحتملين (Prospects)</button>
+            <button class="tab-btn active" onclick="switchTab('prospects', event)" id="tab1Btn">1. العملاء المحتملين</button>
             <button class="tab-btn" onclick="switchTab('team', event)" id="tab2Btn">2. فريق الموزعين والتدريبات</button>
             <button class="tab-btn" onclick="switchTab('customers', event)" id="tab3Btn">3. الزبناء والمشتريات</button>
+            <button class="tab-btn" onclick="switchTab('events', event)" id="tab4Btn">4. الأحداث واللقاءات 📅</button>
         </div>
     </div>
 
@@ -466,6 +512,31 @@
         <div id="customersList"></div>
     </div>
 
+    <!-- 4. قسم الأحداث واللقاءات -->
+    <div id="events" class="section-panel">
+        <h3>📅 إضافة حدث، دورة، أو لقاء جديد</h3>
+        <div class="form-group" style="grid-template-columns: repeat(auto-fit, minmax(160px, 1fr)) 120px;">
+            <input type="text" id="evName" placeholder="إسم الحدث">
+            <input type="date" id="evDate">
+            <input type="text" id="evLocation" placeholder="مكان إقامة الحدث">
+            <input type="text" id="evNotes" placeholder="ملاحظات">
+            <button class="btn-primary" onclick="addEvent()">إضافة حدث</button>
+        </div>
+
+        <div class="search-box">
+            <input type="text" id="searchEvents" placeholder="🔍 ابحث في الأحداث..." oninput="renderAll()">
+        </div>
+
+        <h3>قائمة الأحداث والمواعيد القادمة</h3>
+        <div id="eventsListContainer"></div>
+
+        <h3 style="margin-top: 30px; color: #777;">📁 أرشيف الأحداث المنتهية</h3>
+        <div style="margin-bottom: 10px;">
+            <button class="btn-sm btn-delete" onclick="clearArchive()">🗑️ مسح كل الأرشيف</button>
+        </div>
+        <div id="archiveListContainer"></div>
+    </div>
+
 </div>
 
 <!-- Modal تعديل موزع -->
@@ -510,6 +581,34 @@
     </div>
 </div>
 
+<!-- Modal تعديل حدث -->
+<div id="eventModal" class="modal">
+    <div class="modal-content">
+        <button class="close-modal" onclick="closeEventModal()">×</button>
+        <h3>✏️ تعديل بيانات الحدث</h3>
+        <input type="hidden" id="editEvId">
+        <div class="settings-grid">
+            <div>
+                <label>إسم الحدث</label>
+                <input type="text" id="editEvName" style="width:100%;">
+            </div>
+            <div>
+                <label>تاريخ الحدث</label>
+                <input type="date" id="editEvDate" style="width:100%;">
+            </div>
+            <div>
+                <label>مكان الإقامة</label>
+                <input type="text" id="editEvLocation" style="width:100%;">
+            </div>
+            <div>
+                <label>ملاحظات</label>
+                <input type="text" id="editEvNotes" style="width:100%;">
+            </div>
+            <button class="btn-primary" onclick="saveEventEdits()">حفظ التعديلات</button>
+        </div>
+    </div>
+</div>
+
 <!-- Modal إضافة مشتريات -->
 <div id="purchaseModal" class="modal">
     <div class="modal-content">
@@ -534,8 +633,18 @@
 <div id="settingsModal" class="modal">
     <div class="modal-content">
         <button class="close-modal" onclick="closeSettingsModal()">×</button>
-        <h3 id="settingsModalTitle">إعدادات التطبيق</h3>
+        <h3 id="settingsModalTitle">إعدادات التطبيق والحسابات</h3>
         <div class="settings-grid">
+            <div>
+                <label>👥 إدارة الحسابات (إضافة حساب جديد أو التبديل)</label>
+                <div style="display:flex; flex-direction:column; gap:10px; margin-bottom:10px;">
+                    <input type="text" id="newAccUser" placeholder="الرقم التسلسلي أو اسم الحساب" style="width:100%;">
+                    <input type="password" id="newAccPass" placeholder="كلمة المرور" style="width:100%;">
+                    <button class="btn-primary" onclick="addNewAccount()" style="padding:10px; width:100%;">➕ إضافة حساب جديد</button>
+                </div>
+                <div id="accountsListContainer" style="background:#f9fbf9; padding:8px; border-radius:6px; border:1px solid #e0e8e2; max-height:120px; overflow-y:auto; font-size:13px;"></div>
+            </div>
+            <hr style="border:0; border-top:1px solid #eee;">
             <div>
                 <label id="setLangLabel">لغة التطبيق</label>
                 <select id="appLang" onchange="changeLanguage(this.value)">
@@ -558,7 +667,11 @@
                     </label>
                 </div>
             </div>
-            <button class="btn-primary" onclick="saveSettings()" id="saveSettingsBtn" style="margin-top:10px;">حفظ الإعدادات</button>
+            <div style="background: #fff5f5; padding: 12px; border-radius: 8px; border: 1px dashed var(--danger);">
+                <label style="color: var(--danger); margin-bottom: 8px;">⚠️ منطقة الخطر</label>
+                <button class="btn-sm btn-delete" onclick="requestClearAllData()" style="width:100%; padding:10px; font-size:14px;">🗑️ مسح جميع بيانات التطبيق (يتطلب رقم سري)</button>
+            </div>
+            <button class="btn-primary" onclick="saveSettings()" id="saveSettingsBtn" style="margin-top:5px;">حفظ الإعدادات</button>
         </div>
     </div>
 </div>
@@ -606,6 +719,7 @@
 
         if (savedKey === expectedKey) {
             document.getElementById('licenseModal').style.display = 'none';
+            checkUserAuth();
             return;
         }
 
@@ -615,6 +729,7 @@
             
             if (Date.now() < expiryTime) {
                 document.getElementById('licenseModal').style.display = 'none';
+                checkUserAuth();
                 return;
             } else {
                 localStorage.removeItem('forever_license_key');
@@ -633,7 +748,7 @@
             localStorage.setItem('forever_license_key', userInput);
             alert('تم تفعيل التطبيق بنجاح! شكراً لثقتك.');
             document.getElementById('licenseModal').style.display = 'none';
-            renderAll();
+            checkUserAuth();
         } else {
             alert('مفتاح التفعيل غير صحيح أو منتهي الصلاحية لهذا الجهاز.');
         }
@@ -645,6 +760,136 @@
         let expiryTime = Number(parts[1]);
         if(Date.now() >= expiryTime) return false;
         return true;
+    }
+
+    // إدارة الحسابات المتعددة
+    let accounts = JSON.parse(localStorage.getItem('forever_accounts') || '[]');
+    let activeAccount = localStorage.getItem('forever_active_account') || '';
+
+    function checkUserAuth() {
+        if(accounts.length === 0) {
+            document.getElementById('registerModal').style.display = 'flex';
+        } else if(!activeAccount || !accounts.find(a => a.user === activeAccount)) {
+            document.getElementById('authModal').style.display = 'flex';
+        } else {
+            loadUserData();
+        }
+    }
+
+    function createFirstAccount() {
+        let user = document.getElementById('regUser').value.trim();
+        let pass = document.getElementById('regPass').value.trim();
+        if(!user || !pass) {
+            alert('الرجاء إدخال اسم المستخدم أو الرقم التسلسلي وكلمة المرور.');
+            return;
+        }
+        accounts.push({ user, pass });
+        localStorage.setItem('forever_accounts', JSON.stringify(accounts));
+        localStorage.setItem('forever_active_account', user);
+        activeAccount = user;
+        document.getElementById('registerModal').style.display = 'none';
+        loadUserData();
+    }
+
+    function processLogin() {
+        let user = document.getElementById('loginUser').value.trim();
+        let pass = document.getElementById('loginPass').value.trim();
+        let acc = accounts.find(a => a.user === user && a.pass === pass);
+        if(acc) {
+            localStorage.setItem('forever_active_account', user);
+            activeAccount = user;
+            document.getElementById('authModal').style.display = 'none';
+            loadUserData();
+        } else {
+            alert('بيانات الدخول غير صحيحة.');
+        }
+    }
+
+    function addNewAccount() {
+        let user = document.getElementById('newAccUser').value.trim();
+        let pass = document.getElementById('newAccPass').value.trim();
+        if(!user || !pass) {
+            alert('الرجاء إدخال اسم المستخدم وكلمة المرور.');
+            return;
+        }
+        if(accounts.find(a => a.user === user)) {
+            alert('هذا الحساب موجود بالفعل.');
+            return;
+        }
+        accounts.push({ user, pass });
+        localStorage.setItem('forever_accounts', JSON.stringify(accounts));
+        document.getElementById('newAccUser').value = '';
+        document.getElementById('newAccPass').value = '';
+        renderAccountsList();
+        alert('تم إضافة الحساب بنجاح.');
+    }
+
+    function switchAccount(user) {
+        localStorage.setItem('forever_active_account', user);
+        activeAccount = user;
+        closeSettingsModal();
+        loadUserData();
+    }
+
+    function renderAccountsList() {
+        let container = document.getElementById('accountsListContainer');
+        if(!container) return;
+        let html = '';
+        accounts.forEach(acc => {
+            let isCurrent = acc.user === activeAccount;
+            html += `<div style="display:flex; justify-content:space-between; align-items:center; padding:5px 0; border-bottom:1px solid #eee;">
+                <span>👤 <strong>${acc.user}</strong> ${isCurrent ? '(الحالي)' : ''}</span>
+                ${!isCurrent ? `<button class="btn-sm btn-convert" onclick="switchAccount('${acc.user}')">تبديل</button>` : ''}
+            </div>`;
+        });
+        container.innerHTML = html || 'لا توجد حسابات أخرى';
+    }
+
+    // بيانات التطبيق لكل مستخدم
+    let data = {
+        prospects: [],
+        team: [],
+        customers: [],
+        events: [],
+        archive: [],
+        settings: {
+            currency: 'درهم',
+            lang: 'ar',
+            customStatuses: ['جديد', 'تم التواصل', 'تم اللقاء', 'مدعو للمقر']
+        }
+    };
+
+    function loadUserData() {
+        if(!activeAccount) return;
+        let savedData = localStorage.getItem('forever_crm_data_' + activeAccount);
+        if(savedData) {
+            try {
+                data = JSON.parse(savedData);
+            } catch(e) {}
+        } else {
+            data = {
+                prospects: [],
+                team: [],
+                customers: [],
+                events: [],
+                archive: [],
+                settings: { currency: 'درهم', lang: 'ar', customStatuses: ['جديد', 'تم التواصل', 'تم اللقاء', 'مدعو للمقر'] }
+            };
+        }
+        if(!data.events) data.events = [];
+        if(!data.archive) data.archive = [];
+        if(!data.settings) data.settings = { currency: 'درهم', lang: 'ar', customStatuses: ['جديد', 'تم التواصل', 'تم اللقاء', 'مدعو للمقر'] };
+        
+        document.getElementById('activeUserBadge').innerText = "👤 المستخدم: " + activeAccount;
+        populateCurrencies(data.settings.currency || 'درهم');
+        applyTranslations();
+        renderAll();
+    }
+
+    function saveData() {
+        if(!activeAccount) return;
+        localStorage.setItem('forever_crm_data_' + activeAccount, JSON.stringify(data));
+        renderAll();
     }
 
     const worldCurrencies = [
@@ -664,29 +909,15 @@
         select.innerHTML = html;
     }
 
-    let data = JSON.parse(localStorage.getItem('forever_crm_data_v10') || '{}') || {
-        prospects: [],
-        team: [],
-        customers: [],
-        settings: {
-            currency: 'درهم',
-            lang: 'ar',
-            customStatuses: ['جديد', 'تم التواصل', 'تم اللقاء', 'مدعو للمقر']
-        }
-    };
-
-    if(!data.settings) data.settings = { currency: 'درهم', lang: 'ar', customStatuses: ['جديد', 'تم التواصل', 'تم اللقاء', 'مدعو للمقر'] };
-    if(!data.settings.currency) data.settings.currency = 'درهم';
-    populateCurrencies(data.settings.currency);
-
     const translations = {
         ar: {
             appTitle: "نظام إدارة فريق فوريفر (Smart Team CRM)",
             subTitle: "نظم أوقاتك، تابع عملائك المحتملين، وطوّر فريقك بذكاء",
             settingsBtn: "⚙️ إعدادات التطبيق",
-            tab1: "1. العملاء المحتملين (Prospects)",
+            tab1: "1. العملاء المحتملين",
             tab2: "2. فريق الموزعين والتدريبات",
             tab3: "3. الزبناء والمشتريات",
+            tab4: "4. الأحداث واللقاءات 📅",
             pSectionTitle: "إضافة عميل محتمل جديد",
             pNamePh: "اسم الشخص",
             pPhonePh: "رقم الهاتف",
@@ -717,7 +948,7 @@
             t1: "تدريب البداية",
             t2: "تدريب المنتجات",
             t3: "تدريب الاستقطاب",
-            settingsTitle: "إعدادات التطبيق",
+            settingsTitle: "إعدادات التطبيق والحسابات",
             langLabel: "لغة التطبيق",
             currLabel: "عملة التطبيق",
             exportLabel: "تصدير واستيراد البيانات",
@@ -747,6 +978,7 @@
         document.getElementById('tab1Btn').innerText = t('tab1');
         document.getElementById('tab2Btn').innerText = t('tab2');
         document.getElementById('tab3Btn').innerText = t('tab3');
+        document.getElementById('tab4Btn').innerText = t('tab4');
 
         document.getElementById('pSectionTitle').innerText = t('pSectionTitle');
         document.getElementById('pName').placeholder = t('pNamePh');
@@ -802,11 +1034,6 @@
         select.value = statuses.includes(currentVal) ? currentVal : 'جديد';
     }
 
-    function saveData() {
-        localStorage.setItem('forever_crm_data_v10', JSON.stringify(data));
-        renderAll();
-    }
-
     function switchTab(tabId, event) {
         document.querySelectorAll('.section-panel').forEach(el => el.classList.remove('active'));
         document.querySelectorAll('.tab-btn').forEach(el => el.classList.remove('active'));
@@ -825,6 +1052,7 @@
         }
     }
 
+    // دوال العملاء المحتملين
     function addProspect() {
         const name = document.getElementById('pName').value.trim();
         const phone = document.getElementById('pPhone').value.trim();
@@ -904,6 +1132,7 @@
         }
     }
 
+    // دوال الموزعين
     function addTeamMemberManual() {
         const name = document.getElementById('tName').value.trim();
         const phone = document.getElementById('tPhone').value.trim();
@@ -983,6 +1212,7 @@
         }
     }
 
+    // دوال الزبناء
     function addCustomer() {
         const name = document.getElementById('cName').value.trim();
         const phone = document.getElementById('cPhone').value.trim();
@@ -1061,9 +1291,113 @@
         }
     }
 
+    // دوال الأحداث واللقاءات
+    function addEvent() {
+        const name = document.getElementById('evName').value.trim();
+        const date = document.getElementById('evDate').value;
+        const location = document.getElementById('evLocation').value.trim();
+        const notes = document.getElementById('evNotes').value.trim();
+
+        if(!name || !date) {
+            alert('الرجاء إدخال إسم الحدث وتاريخه على الأقل.');
+            return;
+        }
+
+        if(!data.events) data.events = [];
+        data.events.push({ id: Date.now(), name, date, location, notes });
+        
+        document.getElementById('evName').value = '';
+        document.getElementById('evDate').value = '';
+        document.getElementById('evLocation').value = '';
+        document.getElementById('evNotes').value = '';
+        saveData();
+    }
+
+    function markEventAsDone(id) {
+        if(!data.events) data.events = [];
+        if(!data.archive) data.archive = [];
+        let evIndex = data.events.findIndex(x => x.id === id);
+        if(evIndex !== -1) {
+            let ev = data.events.splice(evIndex, 1)[0];
+            ev.doneDate = new Date().toLocaleDateString();
+            data.archive.push(ev);
+            saveData();
+        }
+    }
+
+    function deleteEvent(id) {
+        data.events = data.events.filter(x => x.id !== id);
+        saveData();
+    }
+
+    function deleteArchiveItem(id) {
+        data.archive = data.archive.filter(x => x.id !== id);
+        saveData();
+    }
+
+    function clearArchive() {
+        if(confirm('هل أنت متأكد من مسح جميع عناصر الأرشيف؟')) {
+            data.archive = [];
+            saveData();
+        }
+    }
+
+    function openEventModal(id) {
+        let ev = data.events.find(x => x.id === id);
+        if(ev) {
+            document.getElementById('editEvId').value = ev.id;
+            document.getElementById('editEvName').value = ev.name;
+            document.getElementById('editEvDate').value = ev.date;
+            document.getElementById('editEvLocation').value = ev.location || '';
+            document.getElementById('editEvNotes').value = ev.notes || '';
+            document.getElementById('eventModal').style.display = 'flex';
+        }
+    }
+
+    function closeEventModal() {
+        document.getElementById('eventModal').style.display = 'none';
+    }
+
+    function saveEventEdits() {
+        let id = Number(document.getElementById('editEvId').value);
+        let ev = data.events.find(x => x.id === id);
+        if(ev) {
+            ev.name = document.getElementById('editEvName').value.trim();
+            ev.date = document.getElementById('editEvDate').value;
+            ev.location = document.getElementById('editEvLocation').value.trim();
+            ev.notes = document.getElementById('editEvNotes').value.trim();
+            saveData();
+            closeEventModal();
+        }
+    }
+
+    // دوال مسح جميع بيانات التطبيق برقم سري (بدون عرضه في الرسالة)
+    function requestClearAllData() {
+        let pin = prompt('الرجاء إدخال الرقم السري لمسح جميع بيانات التطبيق:');
+        if(pin === null) return;
+        if(pin === '1234') {
+            if(confirm('تحذير شديد: سيتم مسح كافة البيانات والعملاء والأحداث نهائياً لهذا الحساب. هل أنت متأكد؟')) {
+                data = {
+                    prospects: [],
+                    team: [],
+                    customers: [],
+                    events: [],
+                    archive: [],
+                    settings: { currency: 'درهم', lang: 'ar', customStatuses: ['جديد', 'تم التواصل', 'تم اللقاء', 'مدعو للمقر'] }
+                };
+                saveData();
+                closeSettingsModal();
+                alert('تم مسح جميع بيانات التطبيق بنجاح.');
+            }
+        } else {
+            alert('الرقم السري غير صحيح! تم إلغاء العملية.');
+        }
+    }
+
     function openSettingsModal() {
         document.getElementById('appLang').value = data.settings.lang || 'ar';
         populateCurrencies(data.settings.currency || 'درهم');
+        renderAccountsList();
         document.getElementById('settingsModal').style.display = 'flex';
     }
 
@@ -1087,7 +1421,7 @@
         let dataStr = "data:text/json;charset=utf-8," + encodeURIComponent(JSON.stringify(data, null, 2));
         let downloadAnchor = document.createElement('a');
         downloadAnchor.setAttribute("href", dataStr);
-        downloadAnchor.setAttribute("download", "forever_crm_backup.json");
+        downloadAnchor.setAttribute("download", `forever_crm_backup_${activeAccount}.json`);
         document.body.appendChild(downloadAnchor);
         downloadAnchor.click();
         downloadAnchor.remove();
@@ -1103,6 +1437,8 @@
                 if(parsed && parsed.prospects && parsed.team && parsed.customers) {
                     data = parsed;
                     if(!data.settings) data.settings = { currency: 'درهم', lang: 'ar', customStatuses: ['جديد', 'تم التواصل', 'تم اللقاء', 'مدعو للمقر'] };
+                    if(!data.events) data.events = [];
+                    if(!data.archive) data.archive = [];
                     saveData();
                     applyTranslations();
                     alert('تم استيراد البيانات بنجاح!');
@@ -1121,18 +1457,22 @@
         let searchInputP = document.getElementById('searchProspects');
         let searchInputT = document.getElementById('searchTeam');
         let searchInputC = document.getElementById('searchCustomers');
+        let searchInputE = document.getElementById('searchEvents');
 
         let searchP = searchInputP ? searchInputP.value.toLowerCase() : '';
         let searchT = searchInputT ? searchInputT.value.toLowerCase() : '';
         let searchC = searchInputC ? searchInputC.value.toLowerCase() : '';
+        let searchE = searchInputE ? searchInputE.value.toLowerCase() : '';
 
         if(!data.prospects) data.prospects = [];
         if(!data.team) data.team = [];
         if(!data.customers) data.customers = [];
+        if(!data.events) data.events = [];
+        if(!data.archive) data.archive = [];
 
+        // 1. عرض العملاء المحتملين
         let pHTML = '';
         let filteredProspects = data.prospects.filter(p => p.name.toLowerCase().includes(searchP) || p.phone.toLowerCase().includes(searchP));
-        
         filteredProspects.forEach(p => {
             let statuses = data.settings.customStatuses || ['جديد', 'تم التواصل', 'تم اللقاء', 'مدعو للمقر'];
             let statusOptionsHTML = '';
@@ -1146,9 +1486,7 @@
 
             pHTML += `<div class="prospect-card">
                 <div class="card-header">
-                    <div>
-                        <strong>${p.name}</strong> (${p.phone})
-                    </div>
+                    <div><strong>${p.name}</strong> (${p.phone})</div>
                     <div>
                         <select onchange="updateProspectStatus(${p.id}, this.value)" style="padding: 5px; font-size: 13px;">
                             ${statusOptionsHTML}
@@ -1167,9 +1505,9 @@
         let pContainer = document.getElementById('prospectsListContainer');
         if(pContainer) pContainer.innerHTML = pHTML || `<p style="text-align:center; color:#777; padding:15px;">لا توجد بيانات حالياً</p>`;
 
+        // 2. عرض فريق الموزعين
         let tHTML = '';
         let filteredTeam = data.team.filter(m => m.name.toLowerCase().includes(searchT) || m.phone.toLowerCase().includes(searchT));
-
         filteredTeam.forEach(m => {
             let notesDisplay = m.notes ? `<div style="margin-top:8px; font-size:13px; color:#555; background:#f1f5f2; padding:8px; border-radius:6px;"><strong>ملاحظات:</strong> ${m.notes}</div>` : '';
             let activeClass = m.active ? 'team-card active-member' : 'team-card';
@@ -1202,9 +1540,9 @@
         let tContainer = document.getElementById('teamListContainer');
         if(tContainer) tContainer.innerHTML = tHTML || `<p style="text-align:center; color:#777; padding:15px;">لا يوجد أعضاء منضمين حتى الآن</p>`;
 
+        // 3. عرض الزبناء والمشتريات
         let cHTML = '';
         let filteredCustomers = data.customers.filter(c => c.name.toLowerCase().includes(searchC) || c.phone.toLowerCase().includes(searchC));
-
         filteredCustomers.forEach(c => {
             let purchasesHtml = c.purchases && c.purchases.length > 0 ? c.purchases.map(pr => `<li>اشتري: <strong>${pr.product}</strong> - السعر: ${pr.price} (بتاريخ: ${pr.date})</li>`).join('') : '<li>لا توجد مشتريات مسجلة بعد</li>';
             
@@ -1222,18 +1560,58 @@
                     <a href="https://wa.me/${c.phone.replace(/[^0-9]/g, '')}" target="_blank" class="btn-whatsapp">💬 ${t('whatsapp')}</a>
                     <a href="tel:${c.phone}" class="btn-call">📞 ${t('call')}</a>
                 </div>
-                <ul class="purchase-list">
-                    ${purchasesHtml}
-                </ul>
+                <ul class="purchase-list">${purchasesHtml}</ul>
             </div>`;
         });
         let cContainer = document.getElementById('customersList');
         if(cContainer) cContainer.innerHTML = cHTML || `<p style="text-align:center; color:#777; padding:15px;">لا توجد سجلات زبناء حالياً</p>`;
+
+        // 4. عرض الأحداث واللقاءات
+        let eHTML = '';
+        let filteredEvents = data.events.filter(e => e.name.toLowerCase().includes(searchE) || (e.location && e.location.toLowerCase().includes(searchE)));
+        filteredEvents.forEach(ev => {
+            let locDisplay = ev.location ? ` | 📍 المكان: <strong>${ev.location}</strong>` : '';
+            let notesDisplay = ev.notes ? `<div style="margin-top:5px; font-size:13px; color:#555;">📝 ملاحظات: ${ev.notes}</div>` : '';
+
+            eHTML += `<div class="event-card">
+                <div class="card-header">
+                    <div>
+                        <strong>📌 ${ev.name}</strong>
+                        <span style="font-size:12px; color:#777; margin-right:10px;">📅 التاريخ: ${ev.date} ${locDisplay}</span>
+                    </div>
+                    <div>
+                        <button class="btn-sm btn-done" onclick="markEventAsDone(${ev.id})">✔️ تم</button>
+                        <button class="btn-sm btn-edit" onclick="openEventModal(${ev.id})">✏️ تعديل</button>
+                        <button class="btn-sm btn-delete" onclick="deleteEvent(${ev.id})">🗑️ مسح</button>
+                    </div>
+                </div>
+                ${notesDisplay}
+            </div>`;
+        });
+        let eContainer = document.getElementById('eventsListContainer');
+        if(eContainer) eContainer.innerHTML = eHTML || `<p style="text-align:center; color:#777; padding:15px;">لا توجد أحداث أو مواعيد قادمة</p>`;
+
+        // عرض الأرشيف
+        let aHTML = ``;
+        data.archive.forEach(ar => {
+            let locDisplay = ar.location ? ` | المكان: ${ar.location}` : '';
+            aHTML += `<div class="event-card" style="background:#f1f5f2; opacity:0.85;">
+                <div class="card-header">
+                    <div>
+                        <strong>✔️ ${ar.name}</strong>
+                        <span style="font-size:12px; color:#777; margin-right:10px;">التاريخ: ${ar.date} ${locDisplay} (أُرشف في: ${ar.doneDate})</span>
+                    </div>
+                    <div>
+                        <button class="btn-sm btn-delete" onclick="deleteArchiveItem(${ar.id})">🗑️ مسح</button>
+                    </div>
+                </div>
+            </div>`;
+        });
+        let aContainer = document.getElementById('archiveListContainer');
+        if(aContainer) aContainer.innerHTML = aHTML || `<p style="text-align:center; color:#777; padding:15px;">الأرشيف فارغ</p>`;
     }
 
-    applyTranslations();
     checkLicenseStatus();
-    renderAll();
 </script>
 
 </body>
